@@ -1,7 +1,11 @@
 import { Voter } from './voter';
 
 export class User {
-  id: string;
+  id?: string;
   email: string;
-  voter: Voter;
+  voter?: Voter;
+
+  constructor(email: string) {
+    this.email = email;
+  }
 }
