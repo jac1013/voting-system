@@ -12,9 +12,6 @@ describe('Vote', () => {
   });
 
   describe('construction/vote casting', () => {
-    it('should have an internal id when created"', () => {
-      expect(vote.id).not.toBeNull();
-    });
     it('should have the passed option when created"', () => {
       expect(vote.option).toBe(1);
     });

@@ -1,17 +1,16 @@
 import { Election } from './election';
 import * as moment from 'moment';
-import { v4 as uuidv4 } from 'uuid';
+import { Identifier } from './util/identifier';
 
-export class Vote {
+export class Vote extends Identifier {
   created: string;
   election: Election;
   option: number;
-  id: string;
   externalId?: string;
 
   constructor(election: Election, option: number) {
+    super();
     this.election = election;
-    this.id = uuidv4();
     this.created = moment.utc().format();
     this.option = option;
   }

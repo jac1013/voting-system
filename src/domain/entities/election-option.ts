@@ -1,14 +1,13 @@
 import { Election } from './election';
-import { v4 as uuidv4 } from 'uuid';
+import { Identifier } from './util/identifier';
 
-export class ElectionOption {
-  id: string;
+export class ElectionOption extends Identifier {
   choiceId: number;
   title: string;
   election: Election;
 
   constructor(choiceId: number, title: string, election: Election) {
-    this.id = uuidv4();
+    super();
     this.choiceId = choiceId;
     this.title = title;
     this.election = election;
