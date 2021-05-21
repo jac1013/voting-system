@@ -1,12 +1,11 @@
 import { Voter } from './voter';
-import { Identifier } from './util/identifier';
 
-export class User extends Identifier {
+export class User {
+  id?: number;
   email: string;
   voter?: Voter;
 
   constructor(email: string) {
-    super();
     this.email = email;
   }
 }

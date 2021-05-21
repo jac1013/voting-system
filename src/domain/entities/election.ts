@@ -1,10 +1,9 @@
 import { ElectionOption } from './election-option';
-import { Identifier } from './util/identifier';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 
-export class Election extends Identifier {
-  id: string;
+export class Election {
+  id?: number;
   startDate: string;
   endDate: string;
   isActive: boolean;
@@ -13,7 +12,6 @@ export class Election extends Identifier {
   endedDate: string;
 
   constructor(startDate: string, endDate: string) {
-    super();
     this.startDate = startDate;
     this.endDate = endDate;
     this.options = [];

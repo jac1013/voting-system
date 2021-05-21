@@ -1,12 +1,10 @@
-import { Identifier } from './util/identifier';
-
-export class Voter extends Identifier {
+export class Voter {
+  id?: number;
   nationalId: string;
   firstName: string;
   lastName: string;
 
   constructor(nationalId: string, firstName: string, lastName: string) {
-    super();
     this.nationalId = nationalId;
     this.firstName = firstName;
     this.lastName = lastName;
