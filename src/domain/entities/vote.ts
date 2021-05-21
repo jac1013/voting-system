@@ -6,7 +6,7 @@ export class Vote {
   created: string;
   election: Election;
   option: number;
-  externalId?: string;
+  permanentId?: string;
 
   constructor(election: Election, option: number) {
     this.election = election;
