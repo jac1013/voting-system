@@ -1,4 +1,3 @@
-import { Election } from './election';
 
 export class ElectionOption {
   id?: number;

@@ -1,14 +1,14 @@
-import { Vote } from './vote';
+import { Ballot } from './ballot';
 import * as moment from 'moment';
 import { Voter } from './voter';
 
-describe('Vote', () => {
-  let vote: Vote;
+describe('Ballot', () => {
+  let vote: Ballot;
   let voter: Voter;
 
   beforeEach(() => {
     voter = new Voter('', '', '');
-    vote = new Vote(voter);
+    vote = new Ballot(voter);
   });
 
   describe('construction/vote casting', () => {
@@ -18,7 +18,7 @@ describe('Vote', () => {
   });
 
   describe('cast()', () => {
-    it('should set the provided option to the vote', () => {
+    it('should set the provided option to the ballot', () => {
       vote.cast(1);
       expect(vote.option).toEqual(1);
     });

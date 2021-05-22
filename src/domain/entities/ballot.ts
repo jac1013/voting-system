@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Voter } from './voter';
 
-export class Vote {
+export class Ballot {
   id?: number;
   created: string;
   option: number;
