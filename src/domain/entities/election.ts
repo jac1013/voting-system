@@ -39,11 +39,15 @@ export class Election {
   }
 
   end() {
-    if (!this.isStarted()) {
+    if (this.isNotStarted()) {
       throw new EndBeforeStartError();
     }
     this.endedDate = moment.utc().format();
     this.isActive = false;
+  }
+
+  private isNotStarted() {
+    return !this.isStarted();
   }
 
   private isStarted() {
@@ -51,10 +55,16 @@ export class Election {
   }
 
   addOption(option: ElectionOption) {
+    if (this.isStarted()) {
+      throw new AddOptionOnStartedElectionError();
+    }
     this.options.push(option);
   }
 
   removeOption(choiceId: number) {
+    if (this.isStarted()) {
+      throw new RemoveOptionOnStartedElection();
+    }
     _.remove(this.options, (o: ElectionOption) => {
       return o.choiceId === choiceId;
     });
@@ -68,4 +78,10 @@ export class StartAfterEndError {
 }
 
 export class StartWithoutMinimumOptionsError {
+}
+
+export class AddOptionOnStartedElectionError {
+}
+
+export class RemoveOptionOnStartedElection {
 }

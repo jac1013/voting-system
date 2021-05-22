@@ -1,6 +1,7 @@
 import {
+  AddOptionOnStartedElectionError,
   Election,
-  EndBeforeStartError,
+  EndBeforeStartError, RemoveOptionOnStartedElection,
   StartAfterEndError,
   StartWithoutMinimumOptionsError,
 } from './election';
@@ -79,6 +80,12 @@ describe('Election', () => {
     it(`should have the added option in it's list`, () => {
       expect(election.options[0]).toBe(option);
     });
+    it(`should return an error if we try to add an option on an already started election`, () => {
+      election.start();
+      expect(() => {
+        election.addOption(option);
+      }).toThrow(AddOptionOnStartedElectionError);
+    });
   });
 
   describe('removeOption()', () => {
@@ -86,6 +93,12 @@ describe('Election', () => {
       election.removeOption(1);
       expect(election.options[0]).toBe(option2);
       expect(election.options[1]).toBe(option3);
+    });
+    it(`should return an error if we try to remove an option on an already started election`, () => {
+      election.start();
+      expect(() => {
+        election.removeOption(1);
+      }).toThrow(RemoveOptionOnStartedElection);
     });
   });
 });
