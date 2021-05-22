@@ -1,15 +1,18 @@
 import * as _ from 'lodash';
 
 export class VoterMap {
-  voters: any; // {'voterId': boolean}
+  voters: { voterId: number; voted: boolean };
   electionId: number;
 
   constructor(electionId: number, voters: number[]) {
-    this.voters = _.map(voters, (v) => {
-      const o = {} as any;
-      o[v] = true;
-      return o;
-    });
+    this.voters = _.reduce(
+      voters,
+      (result, v) => {
+        result[v] = true;
+        return result;
+      },
+      {},
+    );
     this.electionId = electionId;
   }
 
@@ -17,3 +20,4 @@ export class VoterMap {
     return !!this.voters[voterId];
   }
 }
+
