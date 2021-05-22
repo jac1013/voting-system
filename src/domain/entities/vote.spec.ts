@@ -1,11 +1,14 @@
 import { Vote } from './vote';
 import * as moment from 'moment';
+import { Voter } from './voter';
 
 describe('Vote', () => {
   let vote: Vote;
+  let voter: Voter;
 
   beforeEach(() => {
-    vote = new Vote();
+    voter = new Voter('', '', '');
+    vote = new Vote(voter);
   });
 
   describe('construction/vote casting', () => {
