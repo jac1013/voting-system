@@ -101,4 +101,10 @@ describe('Election', () => {
       }).toThrow(RemoveOptionOnStartedElection);
     });
   });
+
+  describe('hasOption()', () => {
+    it('should check that the option is valid in the election', () => {
+      expect(election.hasOption(100)).toEqual(false);
+    });
+  });
 });

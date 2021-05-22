@@ -1,16 +1,16 @@
-import { Election } from './election';
 import * as moment from 'moment';
 
 export class Vote {
   id?: number;
   created: string;
-  election: Election;
   option: number;
   permanentId?: string;
 
-  constructor(election: Election, option: number) {
-    this.election = election;
+  constructor() {
     this.created = moment.utc().format();
+  }
+
+  cast(option: number) {
     this.option = option;
   }
 }

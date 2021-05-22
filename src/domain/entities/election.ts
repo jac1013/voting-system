@@ -69,6 +69,12 @@ export class Election {
       return o.choiceId === choiceId;
     });
   }
+
+  hasOption(option: number): boolean {
+    return !!_.find(this.options, (o: ElectionOption) => {
+      return o.choiceId === option;
+    });
+  }
 }
 
 export class EndBeforeStartError {
