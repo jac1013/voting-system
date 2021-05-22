@@ -5,9 +5,13 @@ import * as moment from 'moment';
 describe('Vote', () => {
   let vote: Vote;
   let election: Election;
+  let startDate: string;
+  let endDate: string;
 
   beforeEach(() => {
-    election = new Election();
+    startDate = moment.utc().format();
+    endDate = moment.utc().add(1, 'days').format();
+    election = new Election(startDate, endDate);
     vote = new Vote(election, 1);
   });
 

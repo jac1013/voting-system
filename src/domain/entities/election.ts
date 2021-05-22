@@ -18,13 +18,36 @@ export class Election {
   }
 
   start() {
+    if (this.isEnded()) {
+      throw new StartAfterEndError();
+    }
+
+    if (this.hasLessThanTwoOptions()) {
+      throw new StartWithoutMinimumOptionsError();
+    }
+
     this.startedDate = moment.utc().format();
     this.isActive = true;
   }
 
+  private isEnded() {
+    return this.endedDate !== undefined && !this.isActive;
+  }
+
+  private hasLessThanTwoOptions(): boolean {
+    return this.options.length < 2;
+  }
+
   end() {
+    if (!this.isStarted()) {
+      throw new EndBeforeStartError();
+    }
     this.endedDate = moment.utc().format();
     this.isActive = false;
+  }
+
+  private isStarted() {
+    return this.startedDate !== undefined && this.isActive;
   }
 
   addOption(option: ElectionOption) {
@@ -36,4 +59,13 @@ export class Election {
       return o.choiceId === choiceId;
     });
   }
+}
+
+export class EndBeforeStartError {
+}
+
+export class StartAfterEndError {
+}
+
+export class StartWithoutMinimumOptionsError {
 }
