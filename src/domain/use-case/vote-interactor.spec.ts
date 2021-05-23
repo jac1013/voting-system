@@ -1,9 +1,16 @@
-import { VoteInteractor, VoteInteractorImpl, VoteWithoutActiveElectionError } from './vote-interactor';
+import {
+  OptionNotPresentInElectionError,
+  UserWithoutVoterProfileError,
+  VoteInteractor,
+  VoteInteractorImpl, VoterNotAllowedError,
+  VoteWithoutActiveElectionError
+} from './vote-interactor';
 import { VoterMap } from '../entities/voter-map';
 import { Election } from '../entities/election';
 import * as moment from 'moment';
 import { User } from '../entities/user';
 import { ElectionOption } from '../entities/election-option';
+import { Voter } from '../entities/voter';
 
 describe('VoteInteractor', () => {
   let election: Election;
@@ -26,13 +33,27 @@ describe('VoteInteractor', () => {
     voterMap = new VoterMap(1, [1, 2, 3]);
     voteInteractor = new VoteInteractorImpl(election, voterMap);
     user = new User('some@email.com');
+    user.voter = new Voter('', '', '');
+    election.start();
   });
 
   describe('vote()', () => {
     it('should return an error if the election is not active', () => {
-      expect(voteInteractor.vote(user, 1)).toThrow(
-        VoteWithoutActiveElectionError,
-      );
+      election.end();
+      expect(() => {
+        voteInteractor.vote(user, 1);
+      }).toThrow(VoteWithoutActiveElectionError);
+    });
+    it('should return an error if the user has no voter profile in it', () => {
+      const userWithoutVoter = new User('some@email.com');
+      expect(() => {
+        voteInteractor.vote(userWithoutVoter, 1);
+      }).toThrow(VoterNotAllowedError);
+    });
+    it('should return an error if the choiceId of the option is not present in the election', () => {
+      expect(() => {
+        voteInteractor.vote(user, 3);
+      }).toThrow(OptionNotPresentInElectionError);
     });
   });
 });

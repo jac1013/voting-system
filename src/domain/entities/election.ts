@@ -77,17 +77,8 @@ export class Election {
   }
 }
 
-export class EndBeforeStartError {
-}
-
-export class StartAfterEndError {
-}
-
-export class StartWithoutMinimumOptionsError {
-}
-
-export class AddOptionOnStartedElectionError {
-}
-
-export class RemoveOptionOnStartedElection {
-}
+export class EndBeforeStartError {}
+export class StartAfterEndError {}
+export class StartWithoutMinimumOptionsError {}
+export class AddOptionOnStartedElectionError {}
+export class RemoveOptionOnStartedElection {}

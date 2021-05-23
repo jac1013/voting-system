@@ -1,4 +1,3 @@
-import { Voter } from '../entities/voter';
 import { VoterMap } from '../entities/voter-map';
 import { User } from '../entities/user';
 import { Election } from '../entities/election';
@@ -18,12 +17,17 @@ export class VoteInteractorImpl implements VoteInteractor {
   }
 
   vote(user: User, choiceId: number): Promise<void> {
-    // election must be active
     if (this.election.isNotStarted() || this.election.isEnded()) {
       throw new VoteWithoutActiveElectionError();
     }
-    // validate that the user has a voter profile
-    // validate that the choiceId is present in the election
+
+    if (user.voter === undefined || this.voterMap.alreadyVoted(user.voter.id)) {
+      throw new VoterNotAllowedError();
+    }
+
+    if (!this.election.hasOption(choiceId)) {
+      throw new OptionNotPresentInElectionError();
+    }
     // create ballot
     // save information about voterMap
     // send email letting the user know that the vote is processing
@@ -36,3 +40,6 @@ export class VoteInteractorImpl implements VoteInteractor {
 }
 
 export class VoteWithoutActiveElectionError {}
+export class UserWithoutVoterProfileError {}
+export class VoterNotAllowedError {}
+export class OptionNotPresentInElectionError {}
