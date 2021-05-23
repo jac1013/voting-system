@@ -30,7 +30,7 @@ export class Election {
     this.isActive = true;
   }
 
-  private isEnded() {
+  isEnded() {
     return this.endedDate !== undefined && !this.isActive;
   }
 
@@ -46,7 +46,7 @@ export class Election {
     this.isActive = false;
   }
 
-  private isNotStarted() {
+  isNotStarted() {
     return !this.isStarted();
   }
 
