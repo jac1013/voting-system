@@ -14,11 +14,12 @@ import { Voter } from '../entities/voter';
 import { EmailProvider } from '../providers/email-provider';
 import { Ballot } from '../entities/ballot';
 import { BlockchainProvider } from '../providers/blockchain-provider';
+import { ElectionLedger } from '../database/election-ledger';
 
 describe('VoteInteractor', () => {
   let election: Election;
   let voteInteractor: VoteInteractor;
-  let voterMap: VoterMap;
+  let electionLedger: ElectionLedger;
   let user: User;
   let option: ElectionOption;
   let option2: ElectionOption;
@@ -34,12 +35,12 @@ describe('VoteInteractor', () => {
     option2 = new ElectionOption(2, 'president 2');
     election.addOption(option);
     election.addOption(option2);
-    voterMap = new VoterMap(1, [1, 2, 3]);
+    electionLedger = new ElectionLedgerMock();
     emailMock = new EmailProviderMock();
     blockchainMock = new BlockchainProviderMock();
     voteInteractor = new VoteInteractorImpl(
       election,
-      voterMap,
+      new ElectionLedgerMockFalseRecorded(),
       emailMock,
       blockchainMock,
     );
@@ -52,33 +53,34 @@ describe('VoteInteractor', () => {
   describe('vote()', () => {
     it('should return an error if the election is not active', () => {
       election.end();
-      expect(() => {
-        voteInteractor.vote(user, 1);
-      }).toThrow(VoteWithoutActiveElectionError);
+      voteInteractor.vote(user, 1).catch((error) => {
+        expect(error).toBeInstanceOf(VoteWithoutActiveElectionError);
+      });
     });
     it('should return an error if the user has no voter profile in it', () => {
       const userWithoutVoter = new User('some@email.com');
-      expect(() => {
-        voteInteractor.vote(userWithoutVoter, 1);
-      }).toThrow(VoterNotAllowedError);
+      voteInteractor.vote(userWithoutVoter, 1).catch((error) => {
+        expect(error).toBeInstanceOf(VoterNotAllowedError);
+      });
     });
     it('should return an error if the choiceId of the option is not present in the election', () => {
-      expect(() => {
-        voteInteractor.vote(user, 3);
-      }).toThrow(OptionNotPresentInElectionError);
+      voteInteractor.vote(user, 1).catch((error) => {
+        expect(error).toBeInstanceOf(OptionNotPresentInElectionError);
+      });
     });
-    it('should set the voter as alreadyVoted in voterMap', () => {
-      voteInteractor.vote(user, 1);
-      expect(voterMap.alreadyVoted(4)).toEqual(true);
+    it('should set the voter in this election ledger', async () => {
+      await voteInteractor.vote(user, 1);
+      const isRecorded = await electionLedger.isRecorded(1, 1);
+      expect(isRecorded).toEqual(true);
     });
-    it('should send an email letting the user know that the vote is processing', () => {
+    it('should send an email letting the user know that the vote is processing', async () => {
       const spy = jest.spyOn(emailMock, 'sendProcessingVoteEmail');
-      voteInteractor.vote(user, 1);
+      await voteInteractor.vote(user, 1);
       expect(spy).toHaveBeenCalledTimes(1);
     });
-    it('should try to create the transaction in the blockchain network', () => {
+    it('should try to create the transaction in the blockchain network', async () => {
       const spy = jest.spyOn(blockchainMock, 'createTransaction');
-      voteInteractor.vote(user, 1);
+      await voteInteractor.vote(user, 1);
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it('should send an email when the transaction in the blockchain network is complete', async () => {
@@ -89,7 +91,7 @@ describe('VoteInteractor', () => {
     it('should send an email when the transaction in the blockchain fails', async () => {
       voteInteractor = new VoteInteractorImpl(
         election,
-        voterMap,
+        new ElectionLedgerMockFalseRecorded(),
         emailMock,
         new BlockchainFailMock(),
       );
@@ -98,14 +100,16 @@ describe('VoteInteractor', () => {
       expect(spy).toHaveBeenCalled();
     });
     it('should set the voter as it didnt vote if the blockchain process fails', async () => {
+      electionLedger = new ElectionLedgerMockFalseRecorded();
       voteInteractor = new VoteInteractorImpl(
         election,
-        voterMap,
+        electionLedger,
         emailMock,
         new BlockchainFailMock(),
       );
       await voteInteractor.vote(user, 1);
-      expect(voterMap.alreadyVoted(4)).toEqual(false);
+      const isRecorded = await electionLedger.isRecorded(1, 1);
+      expect(isRecorded).toEqual(false);
     });
   });
 });
@@ -126,4 +130,34 @@ class BlockchainFailMock implements BlockchainProvider {
   createTransaction(ballot: Ballot): Promise<void> {
     return Promise.reject(undefined);
   }
+}
+
+class ElectionLedgerMock implements ElectionLedger {
+  add(electionId: number, voterId: number): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  isRecorded(electionId: number, voterId: number): Promise<boolean> {
+    return Promise.resolve(true);
+  }
+
+  remove(electionId: number, voterId: number): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+}
+
+class ElectionLedgerMockFalseRecorded implements ElectionLedger {
+  add(electionId: number, voterId: number): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  isRecorded(electionId: number, voterId: number): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
+  remove(electionId: number, voterId: number): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
 }

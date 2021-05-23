@@ -1,38 +1,41 @@
-import { VoterMap } from '../entities/voter-map';
 import { User } from '../entities/user';
 import { Election } from '../entities/election';
 import { EmailProvider } from '../providers/email-provider';
 import { Ballot } from '../entities/ballot';
 import { BlockchainProvider } from '../providers/blockchain-provider';
+import { ElectionLedger } from '../database/election-ledger';
 
 export interface VoteInteractor {
   vote(voter: User, choiceId: number): Promise<void>;
 }
 
 export class VoteInteractorImpl implements VoteInteractor {
-  private voterMap: VoterMap;
+  private electionLedger: ElectionLedger;
   private election: Election;
   private emailProvider: EmailProvider;
   private blockchainProvider: BlockchainProvider;
 
   constructor(
     election: Election,
-    voterMap: VoterMap,
+    electionLedger: ElectionLedger,
     emailProvider: EmailProvider,
     blockchainProvider: BlockchainProvider,
   ) {
-    this.voterMap = voterMap;
+    this.electionLedger = electionLedger;
     this.election = election;
     this.emailProvider = emailProvider;
     this.blockchainProvider = blockchainProvider;
   }
 
-  vote(user: User, choiceId: number): Promise<void> {
+  async vote(user: User, choiceId: number): Promise<void> {
     if (this.election.isNotStarted() || this.election.isEnded()) {
       throw new VoteWithoutActiveElectionError();
     }
 
-    if (user.voter === undefined || this.voterMap.alreadyVoted(user.voter.id)) {
+    if (
+      user.voter === undefined ||
+      (await this.electionLedger.isRecorded(this.election.id, user.voter.id))
+    ) {
       throw new VoterNotAllowedError();
     }
 
@@ -40,7 +43,7 @@ export class VoteInteractorImpl implements VoteInteractor {
       throw new OptionNotPresentInElectionError();
     }
 
-    this.voterMap.voted(user.voter.id);
+    await this.electionLedger.add(this.election.id, user.voter.id);
 
     const ballot = new Ballot(user.voter, choiceId);
 
@@ -51,18 +54,10 @@ export class VoteInteractorImpl implements VoteInteractor {
       .then(() => {
         this.emailProvider.sendSuccessfulVoteEmail(user.email, ballot);
       })
-      .catch(() => {
+      .catch(async () => {
         this.emailProvider.sendFailProcessingVoteEmail(user.email, ballot);
-        this.voterMap.remove(user.voter.id);
+        await this.electionLedger.remove(this.election.id, user.voter.id);
       });
-
-    // create ballot
-    // save information about voterMap
-    // send email letting the user know that the vote is processing
-    // send email to inform the user that the vote is processed
-    // in case of an error, inform the user through an email and revert everything
-    // Create transaction in Blockchain for this particular vote
-    //
   }
 }
 
