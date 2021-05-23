@@ -34,6 +34,7 @@ describe('VoteInteractor', () => {
     voteInteractor = new VoteInteractorImpl(election, voterMap);
     user = new User('some@email.com');
     user.voter = new Voter('', '', '');
+    user.voter.id = 4;
     election.start();
   });
 
@@ -54,6 +55,10 @@ describe('VoteInteractor', () => {
       expect(() => {
         voteInteractor.vote(user, 3);
       }).toThrow(OptionNotPresentInElectionError);
+    });
+    it('should set the voter as alreadyVoted in voterMap', () => {
+      voteInteractor.vote(user, 1);
+      expect(voterMap.alreadyVoted(4)).toEqual(true);
     });
   });
 });

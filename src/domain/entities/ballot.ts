@@ -8,12 +8,13 @@ export class Ballot {
   permanentId?: string;
   voter: Voter;
 
-  constructor(voter: Voter) {
+  constructor(voter: Voter, choiceId) {
     this.created = moment.utc().format();
     this.voter = voter;
+    this.option = choiceId;
   }
 
-  cast(option: number) {
-    this.option = option;
+  cast(permanentId: string) {
+    this.permanentId = permanentId
   }
 }

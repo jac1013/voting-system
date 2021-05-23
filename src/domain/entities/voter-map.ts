@@ -19,5 +19,9 @@ export class VoterMap {
   alreadyVoted(voterId: number): boolean {
     return !!this.voters[voterId];
   }
+
+  voted(voterId: number): void {
+    this.voters[voterId] = true;
+  }
 }
 

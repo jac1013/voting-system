@@ -28,6 +28,8 @@ export class VoteInteractorImpl implements VoteInteractor {
     if (!this.election.hasOption(choiceId)) {
       throw new OptionNotPresentInElectionError();
     }
+
+    this.voterMap.voted(user.voter.id);
     // create ballot
     // save information about voterMap
     // send email letting the user know that the vote is processing

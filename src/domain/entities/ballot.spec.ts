@@ -8,7 +8,7 @@ describe('Ballot', () => {
 
   beforeEach(() => {
     voter = new Voter('', '', '');
-    vote = new Ballot(voter);
+    vote = new Ballot(voter, 1);
   });
 
   describe('construction/vote casting', () => {
@@ -19,8 +19,8 @@ describe('Ballot', () => {
 
   describe('cast()', () => {
     it('should set the provided option to the ballot', () => {
-      vote.cast(1);
-      expect(vote.option).toEqual(1);
+      vote.cast('1');
+      expect(vote.permanentId).toEqual('1');
     });
   });
 });
