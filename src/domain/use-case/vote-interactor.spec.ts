@@ -1,9 +1,9 @@
 import {
   OptionNotPresentInElectionError,
-  UserWithoutVoterProfileError,
   VoteInteractor,
-  VoteInteractorImpl, VoterNotAllowedError,
-  VoteWithoutActiveElectionError
+  VoteInteractorImpl,
+  VoterNotAllowedError,
+  VoteWithoutActiveElectionError,
 } from './vote-interactor';
 import { VoterMap } from '../entities/voter-map';
 import { Election } from '../entities/election';
@@ -11,6 +11,9 @@ import * as moment from 'moment';
 import { User } from '../entities/user';
 import { ElectionOption } from '../entities/election-option';
 import { Voter } from '../entities/voter';
+import { EmailProvider } from '../providers/email-provider';
+import { Ballot } from '../entities/ballot';
+import { BlockchainProvider } from '../providers/blockchain-provider';
 
 describe('VoteInteractor', () => {
   let election: Election;
@@ -19,7 +22,8 @@ describe('VoteInteractor', () => {
   let user: User;
   let option: ElectionOption;
   let option2: ElectionOption;
-
+  let emailMock: EmailProvider;
+  let blockchainMock: BlockchainProvider;
 
   beforeEach(() => {
     election = new Election(
@@ -31,7 +35,14 @@ describe('VoteInteractor', () => {
     election.addOption(option);
     election.addOption(option2);
     voterMap = new VoterMap(1, [1, 2, 3]);
-    voteInteractor = new VoteInteractorImpl(election, voterMap);
+    emailMock = new EmailProviderMock();
+    blockchainMock = new BlockchainProviderMock();
+    voteInteractor = new VoteInteractorImpl(
+      election,
+      voterMap,
+      emailMock,
+      blockchainMock,
+    );
     user = new User('some@email.com');
     user.voter = new Voter('', '', '');
     user.voter.id = 4;
@@ -60,5 +71,59 @@ describe('VoteInteractor', () => {
       voteInteractor.vote(user, 1);
       expect(voterMap.alreadyVoted(4)).toEqual(true);
     });
+    it('should send an email letting the user know that the vote is processing', () => {
+      const spy = jest.spyOn(emailMock, 'sendProcessingVoteEmail');
+      voteInteractor.vote(user, 1);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    it('should try to create the transaction in the blockchain network', () => {
+      const spy = jest.spyOn(blockchainMock, 'createTransaction');
+      voteInteractor.vote(user, 1);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    it('should send an email when the transaction in the blockchain network is complete', async () => {
+      const spy = jest.spyOn(emailMock, 'sendSuccessfulVoteEmail');
+      await voteInteractor.vote(user, 1);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    it('should send an email when the transaction in the blockchain fails', async () => {
+      voteInteractor = new VoteInteractorImpl(
+        election,
+        voterMap,
+        emailMock,
+        new BlockchainFailMock(),
+      );
+      const spy = jest.spyOn(emailMock, 'sendFailProcessingVoteEmail');
+      await voteInteractor.vote(user, 1);
+      expect(spy).toHaveBeenCalled();
+    });
+    it('should set the voter as it didnt vote if the blockchain process fails', async () => {
+      voteInteractor = new VoteInteractorImpl(
+        election,
+        voterMap,
+        emailMock,
+        new BlockchainFailMock(),
+      );
+      await voteInteractor.vote(user, 1);
+      expect(voterMap.alreadyVoted(4)).toEqual(false);
+    });
   });
 });
+
+class EmailProviderMock implements EmailProvider {
+  sendProcessingVoteEmail(email: string, ballot: Ballot): void {}
+  sendSuccessfulVoteEmail(email: string, ballot: Ballot): void {}
+  sendFailProcessingVoteEmail(email: string, ballot: Ballot): void {}
+}
+
+class BlockchainProviderMock implements BlockchainProvider {
+  createTransaction(ballot: Ballot): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+}
+
+class BlockchainFailMock implements BlockchainProvider {
+  createTransaction(ballot: Ballot): Promise<void> {
+    return Promise.reject(undefined);
+  }
+}

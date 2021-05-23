@@ -1,6 +1,9 @@
 import { VoterMap } from '../entities/voter-map';
 import { User } from '../entities/user';
 import { Election } from '../entities/election';
+import { EmailProvider } from '../providers/email-provider';
+import { Ballot } from '../entities/ballot';
+import { BlockchainProvider } from '../providers/blockchain-provider';
 
 export interface VoteInteractor {
   vote(voter: User, choiceId: number): Promise<void>;
@@ -9,11 +12,19 @@ export interface VoteInteractor {
 export class VoteInteractorImpl implements VoteInteractor {
   private voterMap: VoterMap;
   private election: Election;
+  private emailProvider: EmailProvider;
+  private blockchainProvider: BlockchainProvider;
 
-
-  constructor(election: Election, voterMap: VoterMap) {
+  constructor(
+    election: Election,
+    voterMap: VoterMap,
+    emailProvider: EmailProvider,
+    blockchainProvider: BlockchainProvider,
+  ) {
     this.voterMap = voterMap;
     this.election = election;
+    this.emailProvider = emailProvider;
+    this.blockchainProvider = blockchainProvider;
   }
 
   vote(user: User, choiceId: number): Promise<void> {
@@ -30,6 +41,21 @@ export class VoteInteractorImpl implements VoteInteractor {
     }
 
     this.voterMap.voted(user.voter.id);
+
+    const ballot = new Ballot(user.voter, choiceId);
+
+    this.emailProvider.sendProcessingVoteEmail(user.email, ballot);
+
+    return this.blockchainProvider
+      .createTransaction(ballot)
+      .then(() => {
+        this.emailProvider.sendSuccessfulVoteEmail(user.email, ballot);
+      })
+      .catch(() => {
+        this.emailProvider.sendFailProcessingVoteEmail(user.email, ballot);
+        this.voterMap.remove(user.voter.id);
+      });
+
     // create ballot
     // save information about voterMap
     // send email letting the user know that the vote is processing
@@ -37,11 +63,9 @@ export class VoteInteractorImpl implements VoteInteractor {
     // in case of an error, inform the user through an email and revert everything
     // Create transaction in Blockchain for this particular vote
     //
-    return Promise.resolve(undefined);
   }
 }
 
 export class VoteWithoutActiveElectionError {}
-export class UserWithoutVoterProfileError {}
 export class VoterNotAllowedError {}
 export class OptionNotPresentInElectionError {}

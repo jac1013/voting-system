@@ -15,6 +15,6 @@ export class Ballot {
   }
 
   cast(permanentId: string) {
-    this.permanentId = permanentId
+    this.permanentId = permanentId;
   }
 }

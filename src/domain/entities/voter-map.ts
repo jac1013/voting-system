@@ -23,5 +23,9 @@ export class VoterMap {
   voted(voterId: number): void {
     this.voters[voterId] = true;
   }
+
+  remove(voterId: number): void {
+    this.voters[voterId] = false;
+  }
 }
 
