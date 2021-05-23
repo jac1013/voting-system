@@ -4,6 +4,7 @@ import { EmailProvider } from '../providers/email-provider';
 import { Ballot } from '../entities/ballot';
 import { BlockchainProvider } from '../providers/blockchain-provider';
 import { ElectionLedger } from '../database/election-ledger';
+import { BallotLedger } from '../database/ballot-ledger';
 
 export interface VoteInteractor {
   vote(voter: User, choiceId: number): Promise<void>;
@@ -14,17 +15,20 @@ export class VoteInteractorImpl implements VoteInteractor {
   private election: Election;
   private emailProvider: EmailProvider;
   private blockchainProvider: BlockchainProvider;
+  private ballotLedger: BallotLedger;
 
   constructor(
     election: Election,
     electionLedger: ElectionLedger,
     emailProvider: EmailProvider,
     blockchainProvider: BlockchainProvider,
+    ballotLedger: BallotLedger,
   ) {
     this.electionLedger = electionLedger;
     this.election = election;
     this.emailProvider = emailProvider;
     this.blockchainProvider = blockchainProvider;
+    this.ballotLedger = ballotLedger;
   }
 
   async vote(user: User, choiceId: number): Promise<void> {
@@ -46,6 +50,8 @@ export class VoteInteractorImpl implements VoteInteractor {
     await this.electionLedger.add(this.election.id, user.voter.id);
 
     const ballot = new Ballot(user.voter, choiceId);
+
+    await this.ballotLedger.add(this.election.id, ballot.id);
 
     this.emailProvider.sendProcessingVoteEmail(user.email, ballot);
 

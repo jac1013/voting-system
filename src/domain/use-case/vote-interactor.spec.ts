@@ -15,6 +15,7 @@ import { EmailProvider } from '../providers/email-provider';
 import { Ballot } from '../entities/ballot';
 import { BlockchainProvider } from '../providers/blockchain-provider';
 import { ElectionLedger } from '../database/election-ledger';
+import { BallotLedger } from '../database/ballot-ledger';
 
 describe('VoteInteractor', () => {
   let election: Election;
@@ -25,6 +26,7 @@ describe('VoteInteractor', () => {
   let option2: ElectionOption;
   let emailMock: EmailProvider;
   let blockchainMock: BlockchainProvider;
+  let ballotLedger: BallotLedger;
 
   beforeEach(() => {
     election = new Election(
@@ -38,11 +40,13 @@ describe('VoteInteractor', () => {
     electionLedger = new ElectionLedgerMock();
     emailMock = new EmailProviderMock();
     blockchainMock = new BlockchainProviderMock();
+    ballotLedger = new BallotLedgerMock();
     voteInteractor = new VoteInteractorImpl(
       election,
       new ElectionLedgerMockFalseRecorded(),
       emailMock,
       blockchainMock,
+      ballotLedger,
     );
     user = new User('some@email.com');
     user.voter = new Voter('', '', '');
@@ -94,6 +98,7 @@ describe('VoteInteractor', () => {
         new ElectionLedgerMockFalseRecorded(),
         emailMock,
         new BlockchainFailMock(),
+        ballotLedger,
       );
       const spy = jest.spyOn(emailMock, 'sendFailProcessingVoteEmail');
       await voteInteractor.vote(user, 1);
@@ -106,10 +111,16 @@ describe('VoteInteractor', () => {
         electionLedger,
         emailMock,
         new BlockchainFailMock(),
+        ballotLedger,
       );
       await voteInteractor.vote(user, 1);
       const isRecorded = await electionLedger.isRecorded(1, 1);
       expect(isRecorded).toEqual(false);
+    });
+    it('should set the ballot id in the ballot ledger', async () => {
+      const spy = jest.spyOn(ballotLedger, 'add');
+      await voteInteractor.vote(user, 1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });
@@ -160,4 +171,14 @@ class ElectionLedgerMockFalseRecorded implements ElectionLedger {
     return Promise.resolve(undefined);
   }
 
+}
+
+class BallotLedgerMock implements BallotLedger {
+  add(electionId: number, ballotId: number): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  remove(electionId: number, ballotId: number): Promise<void> {
+    return Promise.resolve(undefined);
+  }
 }
