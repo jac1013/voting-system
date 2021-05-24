@@ -2,14 +2,17 @@ import { Ballot } from './ballot';
 import * as moment from 'moment';
 import { Voter } from './voter';
 import { Election } from './election';
+import { ElectionOption } from './election-option';
 
 describe('Ballot', () => {
   let vote: Ballot;
-  let voter: Voter;
+  let electionOption: ElectionOption;
+  let election: Election;
 
   beforeEach(() => {
-    voter = new Voter('', '', '');
-    vote = new Ballot(voter, 1, new Election('', ''));
+    electionOption = new ElectionOption(1, '');
+    election = new Election('', '');
+    vote = new Ballot(electionOption, election);
   });
 
   describe('construction/vote casting', () => {
