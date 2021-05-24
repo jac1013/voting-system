@@ -9,4 +9,5 @@ export interface ElectionOptionRepository {
   remove(id: number): Promise<void>;
   read(id: number): Promise<ElectionOption>;
   getAll(electionId: number): Promise<ElectionOption[]>;
+  getByChoiceId(electionId: number, choiceId: number): Promise<ElectionOption>;
 }

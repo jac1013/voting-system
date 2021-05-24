@@ -5,6 +5,7 @@ import { Ballot } from '../entities/ballot';
 import { BlockchainProvider } from '../providers/blockchain-provider';
 import { ElectionLedger } from '../database/election-ledger';
 import { BallotRepository } from '../database/ballot-repository';
+import { ElectionOptionRepository } from '../database/election-option-repository';
 
 export interface VoteInteractor {
   vote(voter: User, choiceId: number): Promise<void>;
@@ -16,6 +17,7 @@ export class VoteInteractorImpl implements VoteInteractor {
   private emailProvider: EmailProvider;
   private blockchainProvider: BlockchainProvider;
   private ballotRepo: BallotRepository;
+  private electionOptionRepo: ElectionOptionRepository;
 
   constructor(
     election: Election,
@@ -23,12 +25,14 @@ export class VoteInteractorImpl implements VoteInteractor {
     emailProvider: EmailProvider,
     blockchainProvider: BlockchainProvider,
     ballotRepo: BallotRepository,
+    electionOptionRepo: ElectionOptionRepository,
   ) {
     this.electionLedger = electionLedger;
     this.election = election;
     this.emailProvider = emailProvider;
     this.blockchainProvider = blockchainProvider;
     this.ballotRepo = ballotRepo;
+    this.electionOptionRepo = electionOptionRepo;
   }
 
   async vote(user: User, choiceId: number): Promise<void> {
@@ -38,7 +42,11 @@ export class VoteInteractorImpl implements VoteInteractor {
 
     await this.electionLedger.add(this.election.id, user.voter.id);
 
-    const ballot = new Ballot(user.voter, choiceId, this.election);
+    const option = await this.electionOptionRepo.getByChoiceId(
+      this.election.id,
+      choiceId,
+    );
+    const ballot = new Ballot(option, this.election);
     await this.ballotRepo.create(ballot);
 
     this.emailProvider.sendProcessingVoteEmail(user.email, ballot);

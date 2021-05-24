@@ -52,4 +52,17 @@ export class ElectionOptionRepositoryImpl implements ElectionOptionRepository {
       .update(electionOption.id, electionOption);
     return electionOption;
   }
+
+  async getByChoiceId(
+    electionId: number,
+    choiceId: number,
+  ): Promise<ElectionOption> {
+    return toOption(
+      await getConnection()
+        .getRepository(ElectionOptionORM)
+        .createQueryBuilder()
+        .where({ electionId, choiceId })
+        .getOne(),
+    );
+  }
 }
