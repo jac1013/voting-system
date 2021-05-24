@@ -5,6 +5,7 @@ import { Ballot } from '../entities/ballot';
 import { BlockchainProvider } from '../providers/blockchain-provider';
 import { ElectionLedger } from '../database/election-ledger';
 import { BallotLedger } from '../database/ballot-ledger';
+import { BallotRepository } from '../database/ballot-repository';
 
 export interface VoteInteractor {
   vote(voter: User, choiceId: number): Promise<void>;
@@ -16,6 +17,7 @@ export class VoteInteractorImpl implements VoteInteractor {
   private emailProvider: EmailProvider;
   private blockchainProvider: BlockchainProvider;
   private ballotLedger: BallotLedger;
+  private ballotRepo: BallotRepository;
 
   constructor(
     election: Election,
@@ -23,12 +25,14 @@ export class VoteInteractorImpl implements VoteInteractor {
     emailProvider: EmailProvider,
     blockchainProvider: BlockchainProvider,
     ballotLedger: BallotLedger,
+    ballotRepo: BallotRepository,
   ) {
     this.electionLedger = electionLedger;
     this.election = election;
     this.emailProvider = emailProvider;
     this.blockchainProvider = blockchainProvider;
     this.ballotLedger = ballotLedger;
+    this.ballotRepo = ballotRepo;
   }
 
   async vote(user: User, choiceId: number): Promise<void> {
@@ -51,18 +55,22 @@ export class VoteInteractorImpl implements VoteInteractor {
 
     const ballot = new Ballot(user.voter, choiceId);
 
+    await this.ballotRepo.create(ballot);
+
     await this.ballotLedger.add(this.election.id, ballot.id);
 
     this.emailProvider.sendProcessingVoteEmail(user.email, ballot);
 
     return this.blockchainProvider
       .createTransaction(ballot)
-      .then(() => {
+      .then(async (transaction) => {
+        ballot.permanentId = transaction.id;
+        await this.ballotRepo.update(ballot);
         this.emailProvider.sendSuccessfulVoteEmail(user.email, ballot);
       })
       .catch(async () => {
-        this.emailProvider.sendFailProcessingVoteEmail(user.email, ballot);
         await this.electionLedger.remove(this.election.id, user.voter.id);
+        this.emailProvider.sendFailProcessingVoteEmail(user.email, ballot);
       });
   }
 }
