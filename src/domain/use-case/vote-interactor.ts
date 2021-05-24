@@ -46,8 +46,8 @@ export class VoteInteractorImpl implements VoteInteractor {
       this.election.id,
       choiceId,
     );
-    const ballot = new Ballot(option, this.election);
-    await this.ballotRepo.create(ballot);
+    let ballot = new Ballot(option, this.election);
+    ballot = await this.ballotRepo.create(ballot);
 
     this.emailProvider.sendProcessingVoteEmail(user.email, ballot);
 
@@ -60,6 +60,7 @@ export class VoteInteractorImpl implements VoteInteractor {
       })
       .catch(async () => {
         await this.electionLedger.remove(this.election.id, user.voter.id);
+        await this.ballotRepo.remove(ballot.id);
         this.emailProvider.sendFailProcessingVoteEmail(user.email, ballot);
       });
   }

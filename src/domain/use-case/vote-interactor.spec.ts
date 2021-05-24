@@ -15,6 +15,7 @@ import { Ballot } from '../entities/ballot';
 import { BlockchainProvider } from '../providers/blockchain-provider';
 import { ElectionLedger } from '../database/election-ledger';
 import { BallotRepository } from '../database/ballot-repository';
+import { ElectionOptionRepository } from '../database/election-option-repository';
 
 describe('VoteInteractor', () => {
   let election: Election;
@@ -26,6 +27,7 @@ describe('VoteInteractor', () => {
   let emailMock: EmailProvider;
   let blockchainMock: BlockchainProvider;
   let ballotRepository: BallotRepository;
+  let electionOptionRepo: ElectionOptionRepository;
 
   beforeEach(() => {
     election = new Election(
@@ -40,12 +42,14 @@ describe('VoteInteractor', () => {
     emailMock = new EmailProviderMock();
     blockchainMock = new BlockchainProviderMock();
     ballotRepository = new BallotRepositoryMock();
+    electionOptionRepo = new ElectionOptionRepositoryMock();
     voteInteractor = new VoteInteractorImpl(
       election,
       new ElectionLedgerMockFalseRecorded(),
       emailMock,
       blockchainMock,
       ballotRepository,
+      electionOptionRepo,
     );
     user = new User('some@email.com');
     user.voter = new Voter('', '', '');
@@ -98,6 +102,7 @@ describe('VoteInteractor', () => {
         emailMock,
         new BlockchainFailMock(),
         ballotRepository,
+        electionOptionRepo,
       );
       const spy = jest.spyOn(emailMock, 'sendFailProcessingVoteEmail');
       await voteInteractor.vote(user, 1);
@@ -111,6 +116,7 @@ describe('VoteInteractor', () => {
         emailMock,
         new BlockchainFailMock(),
         ballotRepository,
+        electionOptionRepo,
       );
       await voteInteractor.vote(user, 1);
       const isRecorded = await electionLedger.isRecorded(1, 1);
@@ -123,6 +129,25 @@ describe('VoteInteractor', () => {
     });
     it('should update the ballot with the permanentId when the blockchain transaction ends successfully', async () => {
       const spy = jest.spyOn(ballotRepository, 'update');
+      await voteInteractor.vote(user, 1);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    it('should remove the ballot if the process fails', async () => {
+      electionLedger = new ElectionLedgerMockFalseRecorded();
+      voteInteractor = new VoteInteractorImpl(
+        election,
+        electionLedger,
+        emailMock,
+        new BlockchainFailMock(),
+        ballotRepository,
+        electionOptionRepo,
+      );
+      const spy = jest.spyOn(ballotRepository, 'remove');
+      await voteInteractor.vote(user, 1);
+      expect(spy).toHaveBeenCalled();
+    });
+    it('should find the electionOption from the choiceId', async () => {
+      const spy = jest.spyOn(electionOptionRepo, 'getByChoiceId');
       await voteInteractor.vote(user, 1);
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -179,10 +204,46 @@ class ElectionLedgerMockFalseRecorded implements ElectionLedger {
 
 class BallotRepositoryMock implements BallotRepository {
   create(ballot: Ballot): Promise<Ballot> {
-    return Promise.resolve(undefined);
+    const b = new Ballot(null, null);
+    ballot.id = 1;
+    return Promise.resolve(ballot);
   }
 
   update(ballot: Ballot): Promise<Ballot> {
     return Promise.resolve(undefined);
   }
+
+  remove(id: number): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+}
+
+class ElectionOptionRepositoryMock implements ElectionOptionRepository {
+  create(
+    electionOption: ElectionOption,
+    electionId: number,
+  ): Promise<ElectionOption> {
+    return Promise.resolve(undefined);
+  }
+
+  getAll(electionId: number): Promise<ElectionOption[]> {
+    return Promise.resolve([]);
+  }
+
+  getByChoiceId(electionId: number, choiceId: number): Promise<ElectionOption> {
+    return Promise.resolve(undefined);
+  }
+
+  read(id: number): Promise<ElectionOption> {
+    return Promise.resolve(undefined);
+  }
+
+  remove(id: number): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  update(electionOption: ElectionOption): Promise<ElectionOption> {
+    return Promise.resolve(undefined);
+  }
+
 }

@@ -15,4 +15,10 @@ export class BallotRepositoryImpl implements BallotRepository {
     await getConnection().getRepository(BallotORM).update(ballot.id, ballot);
     return ballot;
   }
+
+  async remove(id: number): Promise<void> {
+    const ballot = getConnection().getRepository(BallotORM).create();
+    ballot.id = id;
+    await getConnection().getRepository(BallotORM).remove(ballot);
+  }
 }
