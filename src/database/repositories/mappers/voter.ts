@@ -3,13 +3,13 @@ import { VoterORM } from '../../entities/voter-orm';
 import { Voter } from '../../../domain/entities/voter';
 import * as _ from 'lodash';
 
-export function toVote(v: VoterORM): Voter {
+export function toVoter(v: VoterORM): Voter {
   const voter = new Voter(v.nationalId, v.firstName, v.lastName);
   voter.id = v.id;
   return voter;
 }
 
-export function fromVote(v: Voter): VoterORM {
+export function fromVoter(v: Voter): VoterORM {
   const voter = getConnection().getRepository(VoterORM).create();
   voter.id = v.id;
   voter.nationalId = v.nationalId;
@@ -18,14 +18,14 @@ export function fromVote(v: Voter): VoterORM {
   return voter;
 }
 
-export function toVotes(es: VoterORM[]): Voter[] {
+export function toVoters(es: VoterORM[]): Voter[] {
   return _.map(es, (e) => {
-    return toVote(e);
+    return toVoter(e);
   });
 }
 
-export function fromVotes(es: Voter[]): VoterORM[] {
+export function fromVoters(es: Voter[]): VoterORM[] {
   return _.map(es, (e) => {
-    return fromVote(e);
+    return fromVoter(e);
   });
 }

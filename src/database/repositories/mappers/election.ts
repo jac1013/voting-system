@@ -2,10 +2,8 @@ import { Election } from '../../../domain/entities/election';
 import { ElectionORM } from '../../entities/election-orm';
 import { getConnection } from 'typeorm';
 import { fromOptions, toOptions } from './election-option';
-import { fromVotes, toVotes } from './voter';
-import { ElectionOptionORM } from '../../entities/election-option-orm';
-import { ElectionOption } from '../../../domain/entities/election-option';
 import * as _ from 'lodash';
+import { toVoters, fromVoters } from './voter';
 
 export function toElection(e: ElectionORM): Election {
   const election = new Election(e.startDate, e.endDate);
@@ -14,7 +12,7 @@ export function toElection(e: ElectionORM): Election {
   election.startedDate = e.startedDate;
   election.endedDate = e.endedDate;
   election.options = toOptions(e.options);
-  election.voters = toVotes(e.voters);
+  election.voters = toVoters(e.voters);
   return election;
 }
 
@@ -27,7 +25,7 @@ export function fromElection(e: Election): ElectionORM {
   election.startedDate = e.startedDate;
   election.endedDate = e.endedDate;
   election.options = fromOptions(e.options);
-  election.voters = fromVotes(e.voters);
+  election.voters = fromVoters(e.voters);
   return election;
 }
 
