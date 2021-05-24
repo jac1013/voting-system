@@ -25,9 +25,11 @@
     "@nestjs/platform-express": "^7.6.15",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
+    "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.6",
+    "typeorm": "^0.2.32",
     "uuid": "^8.3.1"
   },
   "devDependencies": {
