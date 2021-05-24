@@ -36,25 +36,13 @@ export class VoteInteractorImpl implements VoteInteractor {
   }
 
   async vote(user: User, choiceId: number): Promise<void> {
-    if (this.election.isNotStarted() || this.election.isEnded()) {
-      throw new VoteWithoutActiveElectionError();
-    }
-
-    if (
-      user.voter === undefined ||
-      (await this.electionLedger.isRecorded(this.election.id, user.voter.id))
-    ) {
-      throw new VoterNotAllowedError();
-    }
-
-    if (!this.election.hasOption(choiceId)) {
-      throw new OptionNotPresentInElectionError();
-    }
+    this.checkActiveElection();
+    await this.checkVoterPermissions(user);
+    this.checkOptionPresentInElection(choiceId);
 
     await this.electionLedger.add(this.election.id, user.voter.id);
 
     const ballot = new Ballot(user.voter, choiceId);
-
     await this.ballotRepo.create(ballot);
 
     await this.ballotLedger.add(this.election.id, ballot.id);
@@ -72,6 +60,27 @@ export class VoteInteractorImpl implements VoteInteractor {
         await this.electionLedger.remove(this.election.id, user.voter.id);
         this.emailProvider.sendFailProcessingVoteEmail(user.email, ballot);
       });
+  }
+
+  private checkActiveElection() {
+    if (this.election.isNotStarted() || this.election.isEnded()) {
+      throw new VoteWithoutActiveElectionError();
+    }
+  }
+
+  private async checkVoterPermissions(user: User) {
+    if (
+      user.voter === undefined ||
+      (await this.electionLedger.isRecorded(this.election.id, user.voter.id))
+    ) {
+      throw new VoterNotAllowedError();
+    }
+  }
+
+  private checkOptionPresentInElection(choiceId: number) {
+    if (!this.election.hasOption(choiceId)) {
+      throw new OptionNotPresentInElectionError();
+    }
   }
 }
 
