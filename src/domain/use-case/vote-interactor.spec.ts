@@ -14,7 +14,6 @@ import { EmailProvider } from '../providers/email-provider';
 import { Ballot } from '../entities/ballot';
 import { BlockchainProvider } from '../providers/blockchain-provider';
 import { ElectionLedger } from '../database/election-ledger';
-import { BallotLedger } from '../database/ballot-ledger';
 import { BallotRepository } from '../database/ballot-repository';
 
 describe('VoteInteractor', () => {
@@ -26,7 +25,6 @@ describe('VoteInteractor', () => {
   let option2: ElectionOption;
   let emailMock: EmailProvider;
   let blockchainMock: BlockchainProvider;
-  let ballotLedger: BallotLedger;
   let ballotRepository: BallotRepository;
 
   beforeEach(() => {
@@ -41,14 +39,12 @@ describe('VoteInteractor', () => {
     electionLedger = new ElectionLedgerMock();
     emailMock = new EmailProviderMock();
     blockchainMock = new BlockchainProviderMock();
-    ballotLedger = new BallotLedgerMock();
     ballotRepository = new BallotRepositoryMock();
     voteInteractor = new VoteInteractorImpl(
       election,
       new ElectionLedgerMockFalseRecorded(),
       emailMock,
       blockchainMock,
-      ballotLedger,
       ballotRepository,
     );
     user = new User('some@email.com');
@@ -101,7 +97,6 @@ describe('VoteInteractor', () => {
         new ElectionLedgerMockFalseRecorded(),
         emailMock,
         new BlockchainFailMock(),
-        ballotLedger,
         ballotRepository,
       );
       const spy = jest.spyOn(emailMock, 'sendFailProcessingVoteEmail');
@@ -115,17 +110,11 @@ describe('VoteInteractor', () => {
         electionLedger,
         emailMock,
         new BlockchainFailMock(),
-        ballotLedger,
         ballotRepository,
       );
       await voteInteractor.vote(user, 1);
       const isRecorded = await electionLedger.isRecorded(1, 1);
       expect(isRecorded).toEqual(false);
-    });
-    it('should set the ballot id in the ballot ledger', async () => {
-      const spy = jest.spyOn(ballotLedger, 'add');
-      await voteInteractor.vote(user, 1);
-      expect(spy).toHaveBeenCalledTimes(1);
     });
     it('should create the ballot in a repository', async () => {
       const spy = jest.spyOn(ballotRepository, 'create');
@@ -186,16 +175,6 @@ class ElectionLedgerMockFalseRecorded implements ElectionLedger {
     return Promise.resolve(undefined);
   }
 
-}
-
-class BallotLedgerMock implements BallotLedger {
-  add(electionId: number, ballotId: number): Promise<void> {
-    return Promise.resolve(undefined);
-  }
-
-  remove(electionId: number, ballotId: number): Promise<void> {
-    return Promise.resolve(undefined);
-  }
 }
 
 class BallotRepositoryMock implements BallotRepository {

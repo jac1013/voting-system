@@ -1,5 +1,14 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ElectionOptionORM } from './election-option-orm';
+import { BallotORM } from './ballot-orm';
+import { VoterORM } from './voter-orm';
 
 @Entity({ name: 'election' })
 export class ElectionORM {
@@ -23,4 +32,11 @@ export class ElectionORM {
 
   @Column()
   endedDate: string;
+
+  @OneToMany(() => BallotORM, (b) => b.election)
+  ballots: BallotORM;
+
+  @ManyToMany(() => VoterORM)
+  @JoinTable()
+  voters: VoterORM[];
 }

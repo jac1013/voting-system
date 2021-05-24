@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Voter } from '../../domain/entities/voter';
 import { ElectionOptionORM } from './election-option-orm';
+import { ElectionORM } from './election-orm';
 
 @Entity({ name: 'ballot' })
 export class BallotORM {
@@ -15,6 +16,9 @@ export class BallotORM {
 
   @Column()
   permanentId?: string;
+
+  @ManyToOne(() => ElectionORM, (e) => e.ballots)
+  election: ElectionORM;
 
   voter: Voter;
 }

@@ -1,6 +1,7 @@
 import { ElectionOption } from './election-option';
 import * as moment from 'moment';
 import * as _ from 'lodash';
+import { Voter } from './voter';
 
 export class Election {
   id?: number;
@@ -10,6 +11,7 @@ export class Election {
   options: ElectionOption[];
   startedDate: string;
   endedDate: string;
+  voters: Voter[];
 
   constructor(startDate: string, endDate: string) {
     this.startDate = startDate;
