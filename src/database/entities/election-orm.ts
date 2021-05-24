@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ElectionOptionORM } from './election-option-orm';
 
-@Entity()
+@Entity({ name: 'election' })
 export class ElectionORM {
   @PrimaryGeneratedColumn()
   id?: number;

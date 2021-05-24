@@ -1,7 +1,7 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { UserORM } from './user-orm';
 
-@Entity()
+@Entity({ name: 'voter' })
 export class VoterORM {
   @PrimaryGeneratedColumn()
   id?: number;

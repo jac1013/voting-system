@@ -5,7 +5,6 @@ import {
   VoterNotAllowedError,
   VoteWithoutActiveElectionError,
 } from './vote-interactor';
-import { VoterMap } from '../entities/voter-map';
 import { Election } from '../entities/election';
 import * as moment from 'moment';
 import { User } from '../entities/user';

@@ -8,7 +8,7 @@ import {
 import { ElectionORM } from './election-orm';
 import { BallotORM } from './ballot-orm';
 
-@Entity()
+@Entity({ name: 'election_option' })
 export class ElectionOptionORM {
   @PrimaryGeneratedColumn()
   id?: number;

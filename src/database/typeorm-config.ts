@@ -1,5 +1,10 @@
 import { createConnection } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import { BallotORM } from './entities/ballot-orm';
+import { ElectionORM } from './entities/election-orm';
+import { UserORM } from './entities/user-orm';
+import { VoterORM } from './entities/voter-orm';
+import { ElectionOptionORM } from './entities/election-option-orm';
 
 export async function connectDatabase() {
   await createConnection({
@@ -11,6 +16,6 @@ export async function connectDatabase() {
     database: 'vote_system',
     synchronize: true,
     logging: false,
-    entities: [],
+    entities: [ElectionORM, UserORM, VoterORM, ElectionOptionORM, BallotORM],
   } as PostgresConnectionOptions);
 }

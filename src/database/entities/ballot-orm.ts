@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Voter } from '../../domain/entities/voter';
 import { ElectionOptionORM } from './election-option-orm';
 
-@Entity()
+@Entity({ name: 'ballot' })
 export class BallotORM {
   @PrimaryGeneratedColumn()
   id?: number;

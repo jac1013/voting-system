@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { VoterORM } from './voter-orm';
 
-@Entity()
+@Entity({ name: 'user' })
 export class UserORM {
   @PrimaryGeneratedColumn()
   id?: number;
