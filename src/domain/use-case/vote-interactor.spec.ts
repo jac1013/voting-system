@@ -85,7 +85,7 @@ describe('VoteInteractor', () => {
       await voteInteractor.vote(user, 1);
       expect(spy).toHaveBeenCalledTimes(1);
     });
-    it('should try to create the transaction in the blockchain network', async () => {
+    it('should try to save the transaction in the blockchain network', async () => {
       const spy = jest.spyOn(blockchainMock, 'createTransaction');
       await voteInteractor.vote(user, 1);
       expect(spy).toHaveBeenCalledTimes(1);
@@ -122,8 +122,8 @@ describe('VoteInteractor', () => {
       const isRecorded = await electionLedger.isRecorded(1, 1);
       expect(isRecorded).toEqual(false);
     });
-    it('should create the ballot in a repository', async () => {
-      const spy = jest.spyOn(ballotRepository, 'create');
+    it('should save the ballot in a repository', async () => {
+      const spy = jest.spyOn(ballotRepository, 'save');
       await voteInteractor.vote(user, 1);
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -203,7 +203,7 @@ class ElectionLedgerMockFalseRecorded implements ElectionLedger {
 }
 
 class BallotRepositoryMock implements BallotRepository {
-  create(ballot: Ballot): Promise<Ballot> {
+  save(ballot: Ballot): Promise<Ballot> {
     const b = new Ballot(null, null);
     ballot.id = 1;
     return Promise.resolve(ballot);
@@ -219,7 +219,7 @@ class BallotRepositoryMock implements BallotRepository {
 }
 
 class ElectionOptionRepositoryMock implements ElectionOptionRepository {
-  create(
+  save(
     electionOption: ElectionOption,
     electionId: number,
   ): Promise<ElectionOption> {

@@ -5,7 +5,7 @@ import { ElectionORM } from '../entities/election-orm';
 import { fromElection, toElection, toElections } from './mappers/election';
 
 export class ElectionRepositoryImpl implements ElectionRepository {
-  async create(election: Election): Promise<Election> {
+  async save(election: Election): Promise<Election> {
     return toElection(
       await getConnection()
         .getRepository(ElectionORM)
@@ -22,5 +22,4 @@ export class ElectionRepositoryImpl implements ElectionRepository {
     election.id = id;
     await getConnection().getRepository(ElectionORM).remove(election);
   }
-
 }

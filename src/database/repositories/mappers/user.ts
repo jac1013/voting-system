@@ -9,7 +9,9 @@ import * as _ from 'lodash';
 export function toUser(u: UserORM): User {
   const user = new User(u.email);
   user.id = u.id;
-  user.voter = toVoter(u.voter);
+  if (u.voter) {
+    user.voter = toVoter(u.voter);
+  }
   return user;
 }
 
@@ -17,7 +19,9 @@ export function fromUser(u: User): UserORM {
   const user = getConnection().getRepository(UserORM).create();
   user.id = u.id;
   user.email = u.email;
-  user.voter = fromVoter(u.voter);
+  if (u.voter) {
+    user.voter = fromVoter(u.voter);
+  }
   return user;
 }
 

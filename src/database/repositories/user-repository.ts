@@ -5,7 +5,7 @@ import { UserORM } from '../entities/user-orm';
 import { fromUser, toUser } from './mappers/user';
 
 export class UserRepositoryImpl implements UserRepository {
-  async create(user: User): Promise<User> {
+  async save(user: User): Promise<User> {
     return toUser(
       await getConnection().getRepository(UserORM).save(fromUser(user)),
     );

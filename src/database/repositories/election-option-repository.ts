@@ -6,7 +6,7 @@ import { ElectionOptionORM } from '../entities/election-option-orm';
 import { fromOption, toOption, toOptions } from './mappers/election-option';
 
 export class ElectionOptionRepositoryImpl implements ElectionOptionRepository {
-  async create(
+  async save(
     electionOption: ElectionOption,
     electionId: number,
   ): Promise<ElectionOption> {

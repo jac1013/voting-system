@@ -47,7 +47,7 @@ export class VoteInteractorImpl implements VoteInteractor {
       choiceId,
     );
     let ballot = new Ballot(option, this.election);
-    ballot = await this.ballotRepo.create(ballot);
+    ballot = await this.ballotRepo.save(ballot);
 
     this.emailProvider.sendProcessingVoteEmail(user.email, ballot);
 

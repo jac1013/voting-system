@@ -21,16 +21,16 @@ export class ElectionORM {
   @Column()
   endDate: string;
 
-  @Column()
+  @Column({ nullable: true })
   isActive: boolean;
 
   @OneToMany(() => ElectionOptionORM, (e) => e.election)
   options: ElectionOptionORM[];
 
-  @Column()
+  @Column({ nullable: true })
   startedDate: string;
 
-  @Column()
+  @Column({ nullable: true })
   endedDate: string;
 
   @OneToMany(() => BallotORM, (b) => b.election)

@@ -1,7 +1,7 @@
 import { ElectionOption } from '../entities/election-option';
 
 export interface ElectionOptionRepository {
-  create(
+  save(
     electionOption: ElectionOption,
     electionId: number,
   ): Promise<ElectionOption>;

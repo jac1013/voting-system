@@ -8,13 +8,13 @@ export class BallotORM {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column()
+  @Column({ nullable: true })
   created: string;
 
   @ManyToOne(() => ElectionOptionORM, (e) => e.ballots)
   option: ElectionOptionORM;
 
-  @Column()
+  @Column({ nullable: true })
   permanentId?: string;
 
   @ManyToOne(() => ElectionORM, (e) => e.ballots)

@@ -6,7 +6,7 @@ import { VoterORM } from '../entities/voter-orm';
 import { fromVoter, toVoter } from './mappers/voter';
 
 export class VoterRepositoryImpl implements VoterRepository {
-  async create(voter: Voter): Promise<Voter> {
+  async save(voter: Voter): Promise<Voter> {
     return toVoter(
       await getConnection().getRepository(VoterORM).save(fromVoter(voter)),
     );

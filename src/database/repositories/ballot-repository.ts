@@ -5,7 +5,7 @@ import { BallotORM } from '../entities/ballot-orm';
 import { fromBallot, toBallot } from './mappers/ballot';
 
 export class BallotRepositoryImpl implements BallotRepository {
-  async create(ballot: Ballot): Promise<Ballot> {
+  async save(ballot: Ballot): Promise<Ballot> {
     return toBallot(
       await getConnection().getRepository(BallotORM).save(fromBallot(ballot)),
     );
