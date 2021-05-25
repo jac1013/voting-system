@@ -1,5 +1,5 @@
 
-version: '3.1'
+version: '3.5'
 services :
   db:
     image: postgres:latest
@@ -16,3 +16,59 @@ services :
       - db
     ports:
       - 8080:8080
+  cardano-node:
+    image: inputoutput/cardano-node:1.26.2
+    environment:
+      NETWORK:
+    volumes:
+      - node-${NETWORK}-db:/data
+      - node-ipc:/ipc
+      - node-config:/nix/store
+    restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        compress: "true"
+        max-file: "10"
+        max-size: "50m"
+
+  cardano-wallet:
+    image: inputoutput/cardano-wallet:2021.4.28
+    volumes:
+      - wallet-${NETWORK}-db:/wallet-db
+      - node-ipc:/ipc
+      - node-config:/config
+    ports:
+      - 8090:8090
+    entrypoint: [ ]
+    command: bash -c "
+      ([[ $$NETWORK == \"mainnet\" ]] && $$CMD --mainnet) ||
+      ([[ $$NETWORK == \"mainnet_candidate*\" ]] && $$CMD --staging /config/*-$$NETWORK-byron-genesis.json) ||
+      ($$CMD --testnet /config/*-$$NETWORK-byron-genesis.json)
+      "
+    environment:
+      CMD: "cardano-wallet serve --node-socket /ipc/node.socket --database /wallet-db --listen-address 0.0.0.0"
+      NETWORK:
+    restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        compress: "true"
+        max-file: "10"
+        max-size: "50m"
+
+volumes:
+  node-mainnet-db:
+  node-testnet-db:
+  node-mainnet_candidate-db:
+  node-mainnet_candidate_2-db:
+  node-mainnet_candidate_3-db:
+  node-mainnet_candidate_4-db:
+  wallet-mainnet-db:
+  wallet-testnet-db:
+  wallet-mainnet_candidate-db:
+  wallet-mainnet_candidate_2-db:
+  wallet-mainnet_candidate_3-db:
+  wallet-mainnet_candidate_4-db:
+  node-ipc:
+  node-config:
