@@ -49,7 +49,7 @@ export class VoteInteractorImpl implements VoteInteractor {
     let ballot = new Ballot(option, this.election);
     ballot = await this.ballotRepo.save(ballot);
 
-    this.emailProvider.sendProcessingVoteEmail(user.email, ballot);
+    this.emailProvider.sendProcessingVoteEmail(user.email);
 
     return this.blockchainProvider
       .createTransaction(ballot)
@@ -61,7 +61,7 @@ export class VoteInteractorImpl implements VoteInteractor {
       .catch(async () => {
         await this.electionLedger.remove(this.election.id, user.voter.id);
         await this.ballotRepo.remove(ballot.id);
-        this.emailProvider.sendFailProcessingVoteEmail(user.email, ballot);
+        this.emailProvider.sendFailProcessingVoteEmail(user.email);
       });
   }
 
