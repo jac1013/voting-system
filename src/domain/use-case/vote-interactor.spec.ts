@@ -155,9 +155,15 @@ describe('VoteInteractor', () => {
 });
 
 class EmailProviderMock implements EmailProvider {
-  sendProcessingVoteEmail(email: string, ballot: Ballot): void {}
-  sendSuccessfulVoteEmail(email: string, ballot: Ballot): void {}
-  sendFailProcessingVoteEmail(email: string, ballot: Ballot): void {}
+  sendFailProcessingVoteEmail(email: string): void {
+  }
+
+  sendProcessingVoteEmail(email: string): void {
+  }
+
+  sendSuccessfulVoteEmail(email: string, ballot: Ballot): void {
+  }
+
 }
 
 class BlockchainProviderMock implements BlockchainProvider {
