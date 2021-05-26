@@ -22,4 +22,10 @@ export class ElectionRepositoryImpl implements ElectionRepository {
     election.id = id;
     await getConnection().getRepository(ElectionORM).remove(election);
   }
+
+  async get(id: number): Promise<Election> {
+    return toElection(
+      await getConnection().getRepository(ElectionORM).findOne(id),
+    );
+  }
 }
