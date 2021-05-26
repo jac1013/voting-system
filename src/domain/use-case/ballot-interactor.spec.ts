@@ -1,10 +1,10 @@
 import {
   OptionNotPresentInElectionError,
-  VoteInteractor,
+  BallotInteractor,
   VoteInteractorImpl,
   VoterNotAllowedError,
   VoteWithoutActiveElectionError,
-} from './vote-interactor';
+} from './ballot-interactor';
 import { Election } from '../entities/election';
 import * as moment from 'moment';
 import { User } from '../entities/user';
@@ -16,18 +16,23 @@ import { BlockchainProvider } from '../providers/blockchain-provider';
 import { ElectionLedger } from '../database/election-ledger';
 import { BallotRepository } from '../database/ballot-repository';
 import { ElectionOptionRepository } from '../database/election-option-repository';
+import { VoterInteractor, VoterInteractorImpl } from './voter-interactor';
+import { VoterRepository } from '../database/voter-repository';
+import { UserInteractor } from './user-interactor';
 
 describe('VoteInteractor', () => {
   let election: Election;
-  let voteInteractor: VoteInteractor;
+  let voteInteractor: BallotInteractor;
   let electionLedger: ElectionLedger;
   let user: User;
+  let voter: Voter;
   let option: ElectionOption;
   let option2: ElectionOption;
   let emailMock: EmailProvider;
   let blockchainMock: BlockchainProvider;
   let ballotRepository: BallotRepository;
   let electionOptionRepo: ElectionOptionRepository;
+  let voterInteractor: VoterInteractor;
 
   beforeEach(() => {
     election = new Election(
@@ -43,6 +48,10 @@ describe('VoteInteractor', () => {
     blockchainMock = new BlockchainProviderMock();
     ballotRepository = new BallotRepositoryMock();
     electionOptionRepo = new ElectionOptionRepositoryMock();
+    voterInteractor = new VoterInteractorImpl(
+      new VoterRepoMock(),
+      new UserInteractorMock(),
+    );
     voteInteractor = new VoteInteractorImpl(
       election,
       new ElectionLedgerMockFalseRecorded(),
@@ -50,10 +59,11 @@ describe('VoteInteractor', () => {
       blockchainMock,
       ballotRepository,
       electionOptionRepo,
+      voterInteractor,
     );
     user = new User('some@email.com');
-    user.voter = new Voter('', '', '');
-    user.voter.id = 4;
+    voter = new Voter('', '', '');
+    voter.id = 4;
     election.start();
   });
 
@@ -64,7 +74,20 @@ describe('VoteInteractor', () => {
         expect(error).toBeInstanceOf(VoteWithoutActiveElectionError);
       });
     });
-    it('should return an error if the user has no voter profile in it', () => {
+    it('should return an error if the user has no voter profile in it', async() => {
+      voterInteractor = new VoterInteractorImpl(
+        new VoterRepoMockWithoutVoter(),
+        new UserInteractorMock(),
+      );
+      voteInteractor = new VoteInteractorImpl(
+        election,
+        new ElectionLedgerMockFalseRecorded(),
+        emailMock,
+        blockchainMock,
+        ballotRepository,
+        electionOptionRepo,
+        voterInteractor,
+      );
       const userWithoutVoter = new User('some@email.com');
       voteInteractor.vote(userWithoutVoter, 1).catch((error) => {
         expect(error).toBeInstanceOf(VoterNotAllowedError);
@@ -103,6 +126,7 @@ describe('VoteInteractor', () => {
         new BlockchainFailMock(),
         ballotRepository,
         electionOptionRepo,
+        voterInteractor,
       );
       const spy = jest.spyOn(emailMock, 'sendFailProcessingVoteEmail');
       await voteInteractor.vote(user, 1);
@@ -117,6 +141,7 @@ describe('VoteInteractor', () => {
         new BlockchainFailMock(),
         ballotRepository,
         electionOptionRepo,
+        voterInteractor,
       );
       await voteInteractor.vote(user, 1);
       const isRecorded = await electionLedger.isRecorded(1, 1);
@@ -141,6 +166,7 @@ describe('VoteInteractor', () => {
         new BlockchainFailMock(),
         ballotRepository,
         electionOptionRepo,
+        voterInteractor,
       );
       const spy = jest.spyOn(ballotRepository, 'remove');
       await voteInteractor.vote(user, 1);
@@ -253,3 +279,45 @@ class ElectionOptionRepositoryMock implements ElectionOptionRepository {
   }
 
 }
+
+export class VoterRepoMock implements VoterRepository {
+  async getByUser(userId: number): Promise<Voter> {
+    const voter = new Voter('', '', '');
+    voter.id = 4;
+    return voter;
+  }
+
+  read(id: number): Promise<Voter> {
+    return Promise.resolve(undefined);
+  }
+
+  save(voter: Voter): Promise<Voter> {
+    return Promise.resolve(undefined);
+  }
+}
+
+export class VoterRepoMockWithoutVoter implements VoterRepository {
+  async getByUser(userId: number): Promise<Voter> {
+    return Promise.resolve(undefined);
+  }
+
+  read(id: number): Promise<Voter> {
+    return Promise.resolve(undefined);
+  }
+
+  save(voter: Voter): Promise<Voter> {
+    return Promise.resolve(undefined);
+  }
+}
+
+export class UserInteractorMock implements UserInteractor {
+  create(user: User): Promise<User> {
+    return Promise.resolve(undefined);
+  }
+
+  get(id: number): Promise<User> {
+    return Promise.resolve(undefined);
+  }
+}
+
+

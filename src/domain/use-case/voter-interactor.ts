@@ -4,6 +4,7 @@ import { UserInteractor } from './user-interactor';
 
 export interface VoterInteractor {
   create(voter: Voter, userId: number): Promise<Voter>;
+  getByUserId(userId: number): Promise<Voter>;
 }
 
 export class VoterInteractorImpl implements VoterInteractor {
@@ -18,5 +19,9 @@ export class VoterInteractorImpl implements VoterInteractor {
   async create(voter: Voter, userId: number): Promise<Voter> {
     voter.user = await this.userInteractor.get(userId);
     return this.voterRepo.save(voter);
+  }
+
+  async getByUserId(userId: number): Promise<Voter> {
+    return this.voterRepo.getByUser(userId);
   }
 }

@@ -56,7 +56,7 @@ export class AppController {
     let voter = new Voter('', '', '');
     voter = await voterRepo.save(voter);
 
-    user.voter = voter;
+    voter.user = user;
     await userRepo.save(user);
 
     const electionLedgerRepo = new ElectionLedgerRepoImpl();
