@@ -3,6 +3,7 @@ import { UserRepository } from '../database/user-repository';
 
 export interface UserInteractor {
   create(user: User): Promise<User>;
+  get(id: number): Promise<User>;
 }
 
 export class UserInteractorImpl implements UserInteractor {
@@ -14,5 +15,9 @@ export class UserInteractorImpl implements UserInteractor {
 
   async create(user: User): Promise<User> {
     return this.userRepo.save(user);
+  }
+
+  async get(id: number): Promise<User> {
+    return this.userRepo.read(id);
   }
 }
