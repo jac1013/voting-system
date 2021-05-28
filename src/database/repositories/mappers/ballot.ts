@@ -1,6 +1,5 @@
 import { VoterORM } from '../../entities/voter-orm';
 import { Voter } from '../../../domain/entities/voter';
-import { getConnection } from 'typeorm';
 import * as _ from 'lodash';
 import { Ballot } from '../../../domain/entities/ballot';
 import { BallotORM } from '../../entities/ballot-orm';
@@ -14,7 +13,7 @@ export function toBallot(b: BallotORM): Ballot {
 }
 
 export function fromBallot(b: Ballot): BallotORM {
-  const ballot = getConnection().getRepository(BallotORM).create();
+  const ballot = new BallotORM();
   ballot.id = b.id;
   ballot.created = b.created;
   ballot.option = fromOption(b.option);

@@ -1,6 +1,5 @@
 import { Election } from '../../../domain/entities/election';
 import { ElectionORM } from '../../entities/election-orm';
-import { getConnection } from 'typeorm';
 import { fromOptions, toOptions } from './election-option';
 import * as _ from 'lodash';
 import { toVoters, fromVoters } from './voter';
@@ -18,7 +17,7 @@ export function toElection(e: ElectionORM): Election {
 }
 
 export function fromElection(e: Election): ElectionORM {
-  const election = getConnection().getRepository(ElectionORM).create();
+  const election = new ElectionORM();
   election.id = e.id;
   election.startDate = e.startDate;
   election.endDate = e.endDate;

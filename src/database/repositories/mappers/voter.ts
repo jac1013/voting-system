@@ -1,4 +1,3 @@
-import { getConnection } from 'typeorm';
 import { VoterORM } from '../../entities/voter-orm';
 import { Voter } from '../../../domain/entities/voter';
 import * as _ from 'lodash';
@@ -11,7 +10,7 @@ export function toVoter(v: VoterORM): Voter {
 }
 
 export function fromVoter(v: Voter): VoterORM {
-  const voter = getConnection().getRepository(VoterORM).create();
+  const voter = new VoterORM();
   voter.id = v.id;
   voter.nationalId = v.nationalId;
   voter.firstName = v.firstName;

@@ -57,20 +57,23 @@ export class CardanoProvider implements BlockchainProvider {
 
   async createWallet(): Promise<PermanentBox> {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { Seed, WalletServer } = require('cardano-wallet-js');
-    const walletServer = WalletServer.init(process.env.CARDANO_NETWORK_URL);
-    const recoveryPhrase = Seed.generateRecoveryPhrase();
-    const mnemonic_sentence = Seed.toMnemonicList(recoveryPhrase);
-    const passphrase = process.env.TEST_WALLET_SECRET;
-    const name = 'tangocrypto-wallet';
-    const wallet = await walletServer.createOrRestoreShelleyWallet(
-      name,
-      mnemonic_sentence,
-      passphrase,
-    );
-
-    console.log(wallet);
-    return toPermanentBox(wallet, passphrase);
+    // const { Seed, WalletServer } = require('cardano-wallet-js');
+    // const walletServer = WalletServer.init(process.env.CARDANO_NETWORK_URL);
+    // const recoveryPhrase = Seed.generateRecoveryPhrase();
+    // const mnemonic_sentence = Seed.toMnemonicList(recoveryPhrase);
+    // const passphrase = process.env.TEST_WALLET_SECRET;
+    // const name = 'tangocrypto-wallet';
+    // const wallet = await walletServer.createOrRestoreShelleyWallet(
+    //   name,
+    //   mnemonic_sentence,
+    //   passphrase,
+    // );
+    //
+    // console.log(wallet);
+    // return toPermanentBox(wallet, passphrase);
+    const box = new PermanentBox();
+    box.id = '71f542fc82787ba100235cebb7ecbf135db00be8';
+    return box;
   }
 
   async listWallets(): Promise<PermanentBox[]> {
@@ -139,13 +142,8 @@ export class CardanoProvider implements BlockchainProvider {
     boxId: string,
     id: string,
   ): Promise<PermanentTransaction> {
-    const wallet = await this._getWallet(
-      '71f542fc82787ba100235cebb7ecbf135db00be8',
-    );
-    const tx = await wallet.getTransaction(
-      'bc663f4735feb7772276f8eb6ff9d16b07162b4d3e9bf68ac67febe8e106a87f',
-    );
-    console.log(tx);
+    const wallet = await this._getWallet(boxId);
+    const tx = await wallet.getTransaction(id);
     return toPermanentTransaction(tx);
   }
 

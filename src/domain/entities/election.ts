@@ -35,7 +35,13 @@ export class Election {
   }
 
   isEnded() {
-    return this.endedDate !== undefined && !this.isActive;
+    return (
+      this.endedDate !== undefined &&
+      this.endedDate !== null &&
+      this.isActive !== undefined &&
+      this.isActive !== null &&
+      !this.isActive
+    );
   }
 
   private hasLessThanTwoOptions(): boolean {

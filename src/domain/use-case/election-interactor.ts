@@ -29,7 +29,7 @@ export class ElectionInteractorImpl implements ElectionInteractor {
     const e = await this.electionRepo.save(election);
     const box = await this.blockchainProvider.createWallet();
     e.votingBoxId = box.id;
-    return await this.electionRepo.save(election);
+    return await this.electionRepo.save(e);
   }
 
   getAll(): Promise<Election[]> {

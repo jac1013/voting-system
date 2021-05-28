@@ -8,7 +8,7 @@ import { BallotRepository } from '../database/ballot-repository';
 import { ElectionOptionRepository } from '../database/election-option-repository';
 import { VoterInteractor } from './voter-interactor';
 import { Voter } from '../entities/voter';
-import { uuid } from 'uuidv4';
+import { v4 } from 'uuid';
 import { decrypt, encrypt } from '../utils/crypto';
 import { PermanentMetadata } from '../entities/permanent-metadata';
 import { PermanentTransaction } from '../entities/permanent-transaction';
@@ -59,7 +59,7 @@ export class BallotInteractorImpl implements BallotInteractor {
       choiceId,
     );
     let ballot = new Ballot(option, this.election);
-    ballot.confirmationHash = uuid();
+    ballot.confirmationHash = v4();
     ballot = await this.ballotRepo.save(ballot);
 
     const hash = encrypt(ballot.confirmationHash);

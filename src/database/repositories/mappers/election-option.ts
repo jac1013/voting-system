@@ -1,4 +1,3 @@
-import { getConnection } from 'typeorm';
 import { ElectionOption } from '../../../domain/entities/election-option';
 import { ElectionOptionORM } from '../../entities/election-option-orm';
 import * as _ from 'lodash';
@@ -10,7 +9,7 @@ export function toOption(e: ElectionOptionORM): ElectionOption {
 }
 
 export function fromOption(e: ElectionOption): ElectionOptionORM {
-  const option = getConnection().getRepository(ElectionOptionORM).create();
+  const option = new ElectionOptionORM();
   option.id = e.id;
   option.choiceId = e.choiceId;
   option.title = e.title;

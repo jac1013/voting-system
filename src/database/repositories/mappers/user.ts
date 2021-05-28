@@ -1,4 +1,3 @@
-import { getConnection } from 'typeorm';
 import { VoterORM } from '../../entities/voter-orm';
 import { Voter } from '../../../domain/entities/voter';
 import { UserORM } from '../../entities/user-orm';
@@ -12,7 +11,7 @@ export function toUser(u: UserORM): User {
 }
 
 export function fromUser(u: User): UserORM {
-  const user = getConnection().getRepository(UserORM).create();
+  const user = new UserORM();
   user.id = u.id;
   user.email = u.email;
   return user;
