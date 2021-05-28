@@ -4,6 +4,7 @@ import { BlockchainProvider } from '../providers/blockchain-provider';
 
 export interface ElectionInteractor {
   create(election: Election): Promise<Election>;
+  update(election: Election): Promise<Election>;
   remove(id: number): Promise<void>;
   getAll(): Promise<Election[]>;
   start(electionId: number): Promise<Election>;
@@ -50,5 +51,10 @@ export class ElectionInteractorImpl implements ElectionInteractor {
     const election = await this.electionRepo.get(electionId);
     election.end();
     return await this.electionRepo.save(election);
+  }
+
+  update(election: Election): Promise<Election> {
+    // TODO: this needs more error handling
+    return this.electionRepo.save(election);
   }
 }

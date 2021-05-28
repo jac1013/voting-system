@@ -12,10 +12,10 @@ import { Voter } from '../entities/voter';
 require('dotenv').config();
 
 export interface BallotInteractor {
-  vote(voter: User, choiceId: number): Promise<void>;
+  vote(user: User, choiceId: number): Promise<void>;
 }
 
-export class VoteInteractorImpl implements BallotInteractor {
+export class BallotInteractorImpl implements BallotInteractor {
   private electionLedger: ElectionLedger;
   private readonly election: Election;
   private emailProvider: EmailProvider;

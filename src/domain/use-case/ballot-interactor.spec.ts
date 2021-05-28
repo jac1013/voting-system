@@ -1,7 +1,7 @@
 import {
   OptionNotPresentInElectionError,
   BallotInteractor,
-  VoteInteractorImpl,
+  BallotInteractorImpl,
   VoterNotAllowedError,
   VoteWithoutActiveElectionError,
 } from './ballot-interactor';
@@ -55,7 +55,7 @@ describe('VoteInteractor', () => {
       new VoterRepoMock(),
       new UserInteractorMock(),
     );
-    voteInteractor = new VoteInteractorImpl(
+    voteInteractor = new BallotInteractorImpl(
       election,
       new ElectionLedgerMockFalseRecorded(),
       emailMock,
@@ -82,7 +82,7 @@ describe('VoteInteractor', () => {
         new VoterRepoMockWithoutVoter(),
         new UserInteractorMock(),
       );
-      voteInteractor = new VoteInteractorImpl(
+      voteInteractor = new BallotInteractorImpl(
         election,
         new ElectionLedgerMockFalseRecorded(),
         emailMock,
@@ -122,7 +122,7 @@ describe('VoteInteractor', () => {
     //   jest.clearAllTimers();
     // });
     it('should send an email when the transaction in the blockchain fails', async () => {
-      voteInteractor = new VoteInteractorImpl(
+      voteInteractor = new BallotInteractorImpl(
         election,
         new ElectionLedgerMockFalseRecorded(),
         emailMock,
@@ -137,7 +137,7 @@ describe('VoteInteractor', () => {
     });
     it('should set the voter as it didnt vote if the blockchain process fails', async () => {
       electionLedger = new ElectionLedgerMockFalseRecorded();
-      voteInteractor = new VoteInteractorImpl(
+      voteInteractor = new BallotInteractorImpl(
         election,
         electionLedger,
         emailMock,
@@ -162,7 +162,7 @@ describe('VoteInteractor', () => {
     });
     it('should remove the ballot if the process fails', async () => {
       electionLedger = new ElectionLedgerMockFalseRecorded();
-      voteInteractor = new VoteInteractorImpl(
+      voteInteractor = new BallotInteractorImpl(
         election,
         electionLedger,
         emailMock,
