@@ -54,8 +54,6 @@ export class VoteInteractorImpl implements BallotInteractor {
     let ballot = new Ballot(option, this.election);
     ballot = await this.ballotRepo.save(ballot);
 
-    this.emailProvider.sendProcessingVoteEmail(user.email);
-
     return this.blockchainProvider
       .createTransaction(ballot)
       .then(async (transaction) => {
