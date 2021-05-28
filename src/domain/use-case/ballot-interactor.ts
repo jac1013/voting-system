@@ -64,7 +64,7 @@ export class BallotInteractorImpl implements BallotInteractor {
     const metadata = new BlockchainMetadata();
     metadata.iv = hash.iv;
     metadata.content = hash.content;
-    metadata.choiceId = ballot.option.choiceId;
+    metadata.choiceId = choiceId;
 
     return this.blockchainProvider
       .createTransaction(metadata)

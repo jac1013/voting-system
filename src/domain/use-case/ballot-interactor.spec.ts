@@ -19,6 +19,7 @@ import { ElectionOptionRepository } from '../database/election-option-repository
 import { VoterInteractor, VoterInteractorImpl } from './voter-interactor';
 import { VoterRepository } from '../database/voter-repository';
 import { UserInteractor } from './user-interactor';
+import { BlockchainMetadata } from '../entities/blockchain-metadata';
 
 process.env.BLOCKCHAIN_CONFIRMATION_INTERVAL_TIME_IN_MS = '1000';
 
@@ -97,7 +98,7 @@ describe('VoteInteractor', () => {
       });
     });
     it('should return an error if the choiceId of the option is not present in the election', () => {
-      voteInteractor.vote(user, 1).catch((error) => {
+      voteInteractor.vote(user, 3).catch((error) => {
         expect(error).toBeInstanceOf(OptionNotPresentInElectionError);
       });
     });
@@ -196,7 +197,7 @@ class EmailProviderMock implements EmailProvider {
 }
 
 class BlockchainProviderMock implements BlockchainProvider {
-  createTransaction(ballot: Ballot): Promise<any> {
+  createTransaction(blockchainMetadata: BlockchainMetadata): Promise<any> {
     return Promise.resolve({ id: '1' });
   }
 
@@ -246,7 +247,7 @@ class BlockchainProviderMock implements BlockchainProvider {
 }
 
 class BlockchainFailMock implements BlockchainProvider {
-  createTransaction(ballot: Ballot): Promise<void> {
+  createTransaction(blockchainMetadata: BlockchainMetadata): Promise<any> {
     return Promise.reject(undefined);
   }
 
