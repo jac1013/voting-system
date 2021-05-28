@@ -25,7 +25,9 @@ export class ElectionRepositoryImpl implements ElectionRepository {
 
   async get(id: number): Promise<Election> {
     return toElection(
-      await getConnection().getRepository(ElectionORM).findOne(id),
+      await getConnection()
+        .getRepository(ElectionORM)
+        .findOne(id, { relations: ['options'] }),
     );
   }
 }

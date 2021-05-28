@@ -40,5 +40,9 @@ export class ElectionORM {
   @JoinTable()
   voters: VoterORM[];
 
+  @Column({ nullable: true })
   votingBoxId: string;
+
+  @Column({ nullable: true })
+  resultId: string;
 }

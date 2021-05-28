@@ -6,6 +6,7 @@ export interface ElectionOptionInteractor {
     electionOption: ElectionOption,
     electionId: number,
   ): Promise<ElectionOption>;
+  getByElectionId(electionId: number): Promise<ElectionOption[]>;
 }
 
 export class ElectionOptionInteractorImpl implements ElectionOptionInteractor {
@@ -20,5 +21,9 @@ export class ElectionOptionInteractorImpl implements ElectionOptionInteractor {
     electionId: number,
   ): Promise<ElectionOption> {
     return this.electionOptionRepo.save(electionOption, electionId);
+  }
+
+  getByElectionId(electionId: number): Promise<ElectionOption[]> {
+    return Promise.resolve([]);
   }
 }

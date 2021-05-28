@@ -1,10 +1,11 @@
 import { PermanentBox } from '../entities/permanent-box';
 import { PermanentTransaction } from '../entities/permanent-transaction';
 import { PermanentMetadata } from '../entities/permanent-metadata';
+import { ElectionResult } from '../entities/election-result';
 
 export interface BlockchainProvider {
   createTransaction(
-    metadata: PermanentMetadata,
+    metadata: PermanentMetadata | ElectionResult,
     passphrase: string,
   ): Promise<PermanentTransaction>;
   createWallet(): Promise<PermanentBox>;
