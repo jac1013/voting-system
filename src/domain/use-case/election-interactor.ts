@@ -9,6 +9,7 @@ export interface ElectionInteractor {
   getAll(): Promise<Election[]>;
   start(electionId: number): Promise<Election>;
   end(electionId: number): Promise<Election>;
+  get(id: number): Promise<Election>;
 }
 
 export class ElectionInteractorImpl implements ElectionInteractor {
@@ -56,5 +57,9 @@ export class ElectionInteractorImpl implements ElectionInteractor {
   update(election: Election): Promise<Election> {
     // TODO: this needs more error handling
     return this.electionRepo.save(election);
+  }
+
+  async get(id: number): Promise<Election> {
+    return await this.electionRepo.get(id);
   }
 }

@@ -1,5 +1,4 @@
 import { BlockchainProvider } from '../domain/providers/blockchain-provider';
-import { Ballot } from '../domain/entities/ballot';
 import { AddressWallet, ShelleyWallet } from 'cardano-wallet-js';
 import { PermanentTransaction } from '../domain/entities/permanent-transaction';
 import {
