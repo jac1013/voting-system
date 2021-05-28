@@ -8,6 +8,7 @@ export class Ballot {
   option: ElectionOption;
   permanentId?: string;
   election: Election;
+  confirmationHash: string;
 
   constructor(electionOption: ElectionOption, election: Election) {
     this.created = moment.utc().format();

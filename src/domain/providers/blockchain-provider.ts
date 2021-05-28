@@ -1,7 +1,8 @@
 import { Ballot } from '../entities/ballot';
+import { BlockchainMetadata } from '../entities/blockchain-metadata';
 
 export interface BlockchainProvider {
-  createTransaction(ballot: Ballot): Promise<any>;
+  createTransaction(metadata: BlockchainMetadata): Promise<any>;
   createWallet(): Promise<any>;
   listWallets(): Promise<any>;
   getWallet(id: string): Promise<any>;

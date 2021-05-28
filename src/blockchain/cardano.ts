@@ -1,12 +1,13 @@
 import { BlockchainProvider } from '../domain/providers/blockchain-provider';
 import { Ballot } from '../domain/entities/ballot';
 import { AddressWallet } from 'cardano-wallet-js';
+import { BlockchainMetadata } from '../domain/entities/blockchain-metadata';
 
 const PENDING = 'pending';
 const IN_LEDGER = 'in_ledger';
 
 export class CardanoProvider implements BlockchainProvider {
-  async createTransaction(ballot: Ballot): Promise<any> {
+  async createTransaction(metadata: BlockchainMetadata): Promise<any> {
     const passphrase = 'tangocrypto';
 
     const unusedAddress = await this.getAddressTransaction(
@@ -23,6 +24,7 @@ export class CardanoProvider implements BlockchainProvider {
       passphrase,
       addresses,
       amounts,
+      { o: metadata.choiceId, i: metadata.iv, c: metadata.content },
     );
 
     console.log(transaction);

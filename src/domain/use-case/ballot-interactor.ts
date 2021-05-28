@@ -8,6 +8,9 @@ import { BallotRepository } from '../database/ballot-repository';
 import { ElectionOptionRepository } from '../database/election-option-repository';
 import { VoterInteractor } from './voter-interactor';
 import { Voter } from '../entities/voter';
+import { uuid } from 'uuidv4';
+import { encrypt } from '../utils/crypto';
+import { BlockchainMetadata } from '../entities/blockchain-metadata';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
@@ -54,10 +57,17 @@ export class BallotInteractorImpl implements BallotInteractor {
       choiceId,
     );
     let ballot = new Ballot(option, this.election);
+    ballot.confirmationHash = uuid();
     ballot = await this.ballotRepo.save(ballot);
 
+    const hash = encrypt(ballot.confirmationHash);
+    const metadata = new BlockchainMetadata();
+    metadata.iv = hash.iv;
+    metadata.content = hash.content;
+    metadata.choiceId = ballot.option.choiceId;
+
     return this.blockchainProvider
-      .createTransaction(ballot)
+      .createTransaction(metadata)
       .then(async (transaction) => {
         ballot.permanentId = transaction.id;
         await this.ballotRepo.update(ballot);

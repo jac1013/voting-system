@@ -21,4 +21,7 @@ export class BallotORM {
   election: ElectionORM;
 
   voter: Voter;
+
+  @Column({ nullable: true })
+  confirmationHash: string;
 }

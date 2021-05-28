@@ -1,10 +1,19 @@
-import { ElectionInteractor, ElectionInteractorImpl } from '../src/domain/use-case/election-interactor';
+import {
+  ElectionInteractor,
+  ElectionInteractorImpl,
+} from '../src/domain/use-case/election-interactor';
 import {
   ElectionOptionInteractor,
-  ElectionOptionInteractorImpl
+  ElectionOptionInteractorImpl,
 } from '../src/domain/use-case/election-option-interactor';
-import { UserInteractor, UserInteractorImpl } from '../src/domain/use-case/user-interactor';
-import { VoterInteractor, VoterInteractorImpl } from '../src/domain/use-case/voter-interactor';
+import {
+  UserInteractor,
+  UserInteractorImpl,
+} from '../src/domain/use-case/user-interactor';
+import {
+  VoterInteractor,
+  VoterInteractorImpl,
+} from '../src/domain/use-case/voter-interactor';
 import * as chance from 'chance';
 import { Election } from '../src/domain/entities/election';
 import * as moment from 'moment';
@@ -16,7 +25,10 @@ import { UserRepositoryImpl } from '../src/database/repositories/user-repository
 import { VoterRepositoryImpl } from '../src/database/repositories/voter-repository';
 import { User } from '../src/domain/entities/user';
 import { Voter } from '../src/domain/entities/voter';
-import { BallotInteractor, BallotInteractorImpl } from '../src/domain/use-case/ballot-interactor';
+import {
+  BallotInteractor,
+  BallotInteractorImpl,
+} from '../src/domain/use-case/ballot-interactor';
 import { ElectionLedgerRepoImpl } from '../src/database/repositories/election-ledger';
 import { NodeMailerProvider } from '../src/emails/node-mailer';
 import { BallotRepositoryImpl } from '../src/database/repositories/ballot-repository';
