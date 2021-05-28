@@ -12,6 +12,7 @@ export class Election {
   startedDate: string;
   endedDate: string;
   voters: Voter[];
+  votingBoxId: string;
 
   constructor(startDate: string, endDate: string) {
     this.startDate = startDate;

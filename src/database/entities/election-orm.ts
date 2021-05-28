@@ -39,4 +39,6 @@ export class ElectionORM {
   @ManyToMany(() => VoterORM)
   @JoinTable()
   voters: VoterORM[];
+
+  votingBoxId: string;
 }

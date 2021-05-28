@@ -13,6 +13,7 @@ export function toElection(e: ElectionORM): Election {
   election.endedDate = e.endedDate;
   election.options = toOptions(e.options);
   election.voters = toVoters(e.voters);
+  election.votingBoxId = e.votingBoxId;
   return election;
 }
 
@@ -26,6 +27,7 @@ export function fromElection(e: Election): ElectionORM {
   election.endedDate = e.endedDate;
   election.options = fromOptions(e.options);
   election.voters = fromVoters(e.voters);
+  election.votingBoxId = e.votingBoxId;
   return election;
 }
 
