@@ -1,5 +1,9 @@
 import { BlockchainProvider } from '../domain/providers/blockchain-provider';
 import { Ballot } from '../domain/entities/ballot';
+import { AddressWallet } from 'cardano-wallet-js';
+
+const PENDING = 'pending';
+const IN_LEDGER = 'in_ledger';
 
 export class CardanoProvider implements BlockchainProvider {
   async createTransaction(ballot: Ballot): Promise<any> {
@@ -8,7 +12,7 @@ export class CardanoProvider implements BlockchainProvider {
     const unusedAddress = await this.getAddressTransaction(
       '399998782afc4f0b04fcc6db163d5fdd4f780425',
     );
-    const addresses = [unusedAddress.id];
+    const addresses = [new AddressWallet(unusedAddress.id)];
     const amounts = [1000000]; // 1 ADA
 
     const wallet = await this.getWallet(
@@ -36,12 +40,8 @@ export class CardanoProvider implements BlockchainProvider {
     const { WalletServer } = require('cardano-wallet-js');
     const walletServer = WalletServer.init('http://localhost:8090/v2');
     const information = await walletServer.getNetworkInformation();
-    console.log(information);
 
-    const address = await this.getAddressTransaction(
-      '399998782afc4f0b04fcc6db163d5fdd4f780425',
-    );
-    console.log(address);
+    await this.createTransaction(null);
   }
 
   async createWallet() {
@@ -107,5 +107,45 @@ export class CardanoProvider implements BlockchainProvider {
     const estimatedFees = await wallet.estimateFee([unusedAddress.id], [1000000]);
 
     console.log(estimatedFees);
+  }
+
+  async getTransaction(walletId: string, id: string): Promise<any> {
+    const wallet = await this.getWallet(
+      '71f542fc82787ba100235cebb7ecbf135db00be8',
+    );
+    const tx = await wallet.getTransaction(
+      'bc663f4735feb7772276f8eb6ff9d16b07162b4d3e9bf68ac67febe8e106a87f',
+    );
+    console.log(tx);
+  }
+
+  async isTransactionInLedger(
+    walletId: string,
+    transactionId: string,
+  ): Promise<boolean> {
+    const transaction = await this.getTransaction(walletId, transactionId);
+    return transaction.status === IN_LEDGER;
+  }
+
+  async isFailedTransaction(
+    walletId: string,
+    transactionId: string,
+  ): Promise<boolean> {
+    const transaction = await this.getTransaction(walletId, transactionId);
+    if (transaction.status !== PENDING && transaction.status !== IN_LEDGER) {
+      //TODO: Configure a real logger
+      console.log(
+        `transaction status is not recognized: ${transaction.status}`,
+      );
+      return false;
+    }
+  }
+
+  async removeTransaction(
+    walletId: string,
+    transactionId: string,
+  ): Promise<void> {
+    const wallet = await this.getWallet(walletId);
+    await wallet.forgetTransaction(transactionId);
   }
 }

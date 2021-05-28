@@ -9,6 +9,7 @@ require('dotenv').config();
 
 async function bootstrap() {
   await connectDatabase();
+  await testCardano();
   const app = await NestFactory.create(AppModule);
   await app.listen(3000);
 }
