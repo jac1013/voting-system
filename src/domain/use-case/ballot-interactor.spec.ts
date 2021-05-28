@@ -19,7 +19,7 @@ import { ElectionOptionRepository } from '../database/election-option-repository
 import { VoterInteractor, VoterInteractorImpl } from './voter-interactor';
 import { VoterRepository } from '../database/voter-repository';
 import { UserInteractor } from './user-interactor';
-import { BlockchainMetadata } from '../entities/blockchain-metadata';
+import { PermanentMetadata } from '../entities/permanent-metadata';
 
 process.env.BLOCKCHAIN_CONFIRMATION_INTERVAL_TIME_IN_MS = '1000';
 
@@ -197,7 +197,10 @@ class EmailProviderMock implements EmailProvider {
 }
 
 class BlockchainProviderMock implements BlockchainProvider {
-  createTransaction(blockchainMetadata: BlockchainMetadata): Promise<any> {
+  createTransaction(
+    blockchainMetadata: PermanentMetadata,
+    passphrase: string,
+  ): Promise<any> {
     return Promise.resolve({ id: '1' });
   }
 
@@ -247,15 +250,14 @@ class BlockchainProviderMock implements BlockchainProvider {
 }
 
 class BlockchainFailMock implements BlockchainProvider {
-  createTransaction(blockchainMetadata: BlockchainMetadata): Promise<any> {
+  createTransaction(
+    blockchainMetadata: PermanentMetadata,
+    passphrase: string,
+  ): Promise<any> {
     return Promise.reject(undefined);
   }
 
   createWallet(): Promise<any> {
-    return Promise.resolve(undefined);
-  }
-
-  getAddressTransaction(walletId: string): Promise<any> {
     return Promise.resolve(undefined);
   }
 

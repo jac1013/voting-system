@@ -1,20 +1,22 @@
-import { Ballot } from '../entities/ballot';
-import { BlockchainMetadata } from '../entities/blockchain-metadata';
+import { PermanentBox } from '../entities/permanent-box';
+import { PermanentTransaction } from '../entities/permanent-transaction';
+import { PermanentMetadata } from '../entities/permanent-metadata';
 
 export interface BlockchainProvider {
-  createTransaction(metadata: BlockchainMetadata): Promise<any>;
-  createWallet(): Promise<any>;
-  listWallets(): Promise<any>;
-  getWallet(id: string): Promise<any>;
-  removeWallet(id: string): Promise<any>;
-  listTransactions(walletId: string): Promise<any>;
-  getAddressTransaction(walletId: string): Promise<any>;
-  getEstimationFee(
-    walletToSendId: string,
-    walletToReceiveId: string,
-  ): Promise<any>;
-  getTransaction(walletId: string, transactionId: string): Promise<any>;
-  isTransactionInLedger(walletId: string, transactionId: string): Promise<any>;
-  isFailedTransaction(walletId: string, transactionId: string): Promise<any>;
-  removeTransaction(walletId: string, transactionId: string): Promise<any>;
+  createTransaction(
+    metadata: PermanentMetadata,
+    passphrase: string,
+  ): Promise<PermanentTransaction>;
+  createWallet(): Promise<PermanentBox>;
+  listWallets(): Promise<PermanentBox[]>;
+  getWallet(id: string): Promise<PermanentBox>;
+  removeWallet(id: string): Promise<void>;
+  listTransactions(walletId: string): Promise<PermanentTransaction[]>;
+  getTransaction(
+    boxId: string,
+    transactionId: string,
+  ): Promise<PermanentTransaction>;
+  isTransactionInLedger(boxId: string, transactionId: string): Promise<boolean>;
+  isFailedTransaction(boxId: string, transactionId: string): Promise<boolean>;
+  removeTransaction(boxId: string, transactionId: string): Promise<void>;
 }

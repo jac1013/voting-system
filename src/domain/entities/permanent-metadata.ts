@@ -1,4 +1,4 @@
-export class BlockchainMetadata {
+export class PermanentMetadata {
   iv: string;
   content: string;
   choiceId: number;

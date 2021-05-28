@@ -10,7 +10,7 @@ import { VoterInteractor } from './voter-interactor';
 import { Voter } from '../entities/voter';
 import { uuid } from 'uuidv4';
 import { encrypt } from '../utils/crypto';
-import { BlockchainMetadata } from '../entities/blockchain-metadata';
+import { PermanentMetadata } from '../entities/permanent-metadata';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
@@ -61,13 +61,14 @@ export class BallotInteractorImpl implements BallotInteractor {
     ballot = await this.ballotRepo.save(ballot);
 
     const hash = encrypt(ballot.confirmationHash);
-    const metadata = new BlockchainMetadata();
+    const metadata = new PermanentMetadata();
     metadata.iv = hash.iv;
     metadata.content = hash.content;
     metadata.choiceId = choiceId;
 
+    // TODO: Need a robust way to handle passphrase here
     return this.blockchainProvider
-      .createTransaction(metadata)
+      .createTransaction(metadata, 'tangocrypto')
       .then(async (transaction) => {
         ballot.permanentId = transaction.id;
         await this.ballotRepo.update(ballot);
