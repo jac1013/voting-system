@@ -21,4 +21,12 @@ export class BallotRepositoryImpl implements BallotRepository {
     ballot.id = id;
     await getConnection().getRepository(BallotORM).remove(ballot);
   }
+
+  async findByPermanentId(id: string): Promise<Ballot> {
+    return toBallot(
+      await getConnection()
+        .getRepository(BallotORM)
+        .findOne({ permanentId: id }),
+    );
+  }
 }

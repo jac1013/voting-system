@@ -20,6 +20,8 @@ import { VoterInteractor, VoterInteractorImpl } from './voter-interactor';
 import { VoterRepository } from '../database/voter-repository';
 import { UserInteractor } from './user-interactor';
 import { PermanentMetadata } from '../entities/permanent-metadata';
+import { PermanentTransaction } from '../entities/permanent-transaction';
+import { encrypt } from '../utils/crypto';
 
 process.env.BLOCKCHAIN_CONFIRMATION_INTERVAL_TIME_IN_MS = '1000';
 
@@ -36,6 +38,7 @@ describe('VoteInteractor', () => {
   let ballotRepository: BallotRepository;
   let electionOptionRepo: ElectionOptionRepository;
   let voterInteractor: VoterInteractor;
+  let permanentTransaction: PermanentTransaction;
 
   beforeEach(() => {
 
@@ -68,6 +71,14 @@ describe('VoteInteractor', () => {
     user = new User('some@email.com');
     voter = new Voter('', '', '');
     voter.id = 4;
+    permanentTransaction = new PermanentTransaction();
+    permanentTransaction.id = 'hello';
+    permanentTransaction.metadata = {
+      iv: '16faa7ee476de168bf623c7c906c7e69',
+      choiceId: 1,
+      content: '0986f5ecec25b930ae5559',
+    };
+    permanentTransaction.status = 'in_ledger';
     election.start();
   });
 
@@ -180,6 +191,31 @@ describe('VoteInteractor', () => {
       const spy = jest.spyOn(electionOptionRepo, 'getByChoiceId');
       await voteInteractor.vote(user, 1);
       expect(spy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('isValid()', () => {
+    it('should get the ballot for this permanentId', async () => {
+      const spy = jest.spyOn(ballotRepository, 'findByPermanentId');
+      await voteInteractor.isValid(permanentTransaction);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    it(`should return true if the confirmationHash match the metadata from permanent transaction`, async () => {
+      const result = await voteInteractor.isValid(permanentTransaction);
+      expect(result).toEqual(true);
+    });
+    it(`should return false if the confirmationHash doesn't match the metadata from permanent transaction`, async () => {
+      permanentTransaction = new PermanentTransaction();
+      permanentTransaction.id = 'hello';
+      permanentTransaction.metadata = {
+        // wrong iv
+        iv: '16faa7ee476de168bf623c7c906c7e68',
+        choiceId: 1,
+        content: '0986f5ecec25b930ae5559',
+      };
+      permanentTransaction.status = 'in_ledger';
+      const result = await voteInteractor.isValid(permanentTransaction);
+      expect(result).toEqual(false);
     });
   });
 });
@@ -332,6 +368,7 @@ class BallotRepositoryMock implements BallotRepository {
   save(ballot: Ballot): Promise<Ballot> {
     const b = new Ballot(null, null);
     ballot.id = 1;
+    ballot.confirmationHash = 'hello world';
     return Promise.resolve(ballot);
   }
 
@@ -341,6 +378,13 @@ class BallotRepositoryMock implements BallotRepository {
 
   remove(id: number): Promise<void> {
     return Promise.resolve(undefined);
+  }
+
+  findByPermanentId(id: string): Promise<Ballot> {
+    const ballot = new Ballot(null, null);
+    ballot.id = 1;
+    ballot.confirmationHash = 'hello world';
+    return Promise.resolve(ballot);
   }
 }
 

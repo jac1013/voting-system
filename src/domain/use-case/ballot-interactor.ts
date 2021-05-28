@@ -9,13 +9,15 @@ import { ElectionOptionRepository } from '../database/election-option-repository
 import { VoterInteractor } from './voter-interactor';
 import { Voter } from '../entities/voter';
 import { uuid } from 'uuidv4';
-import { encrypt } from '../utils/crypto';
+import { decrypt, encrypt } from '../utils/crypto';
 import { PermanentMetadata } from '../entities/permanent-metadata';
+import { PermanentTransaction } from '../entities/permanent-transaction';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
 export interface BallotInteractor {
   vote(user: User, choiceId: number): Promise<void>;
+  isValid(permanentTransaction: PermanentTransaction): Promise<boolean>;
 }
 
 export class BallotInteractorImpl implements BallotInteractor {
@@ -124,6 +126,14 @@ export class BallotInteractorImpl implements BallotInteractor {
       }
       // TODO: this is not safe, we could get something different than a number here.
     }, parseInt(process.env.BLOCKCHAIN_CONFIRMATION_INTERVAL_TIME_IN_MS));
+  }
+
+  async isValid(permanentTransaction: PermanentTransaction): Promise<boolean> {
+    const ballot = await this.ballotRepo.findByPermanentId(
+      permanentTransaction.id,
+    );
+    const hash = decrypt(permanentTransaction.metadata);
+    return hash === ballot.confirmationHash;
   }
 }
 
