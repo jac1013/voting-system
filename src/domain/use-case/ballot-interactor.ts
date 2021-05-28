@@ -8,6 +8,8 @@ import { BallotRepository } from '../database/ballot-repository';
 import { ElectionOptionRepository } from '../database/election-option-repository';
 import { VoterInteractor } from './voter-interactor';
 import { Voter } from '../entities/voter';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config();
 
 export interface BallotInteractor {
   vote(voter: User, choiceId: number): Promise<void>;
@@ -59,9 +61,10 @@ export class VoteInteractorImpl implements BallotInteractor {
       .then(async (transaction) => {
         ballot.permanentId = transaction.id;
         await this.ballotRepo.update(ballot);
-        this.emailProvider.sendSuccessfulVoteEmail(user.email, ballot);
+        await this.checkTransactionConfirmation(user, ballot);
       })
       .catch(async () => {
+        // TODO: need to investigate reasons why we might end up here and correctly handle things in the blockchain provider
         await this.electionLedger.remove(this.election.id, voter.id);
         await this.ballotRepo.remove(ballot.id);
         this.emailProvider.sendFailProcessingVoteEmail(user.email);
@@ -89,6 +92,27 @@ export class VoteInteractorImpl implements BallotInteractor {
     if (!this.election.hasOption(choiceId)) {
       throw new OptionNotPresentInElectionError();
     }
+  }
+
+  private async checkTransactionConfirmation(
+    user: User,
+    ballot: Ballot,
+  ): Promise<void> {
+    const interval = setInterval(async () => {
+      // TODO: What happens if we fail here
+      // TODO: We need to have a time limit, if the transaction hangs in "pending" we should "forget" it from the blockchain
+      // as that's the only way we get the transaction fee back.
+      if (
+        await this.blockchainProvider.isTransactionInLedger(
+          this.election.votingBoxId,
+          ballot.permanentId,
+        )
+      ) {
+        await this.emailProvider.sendSuccessfulVoteEmail(user.email, ballot);
+        clearInterval(interval);
+      }
+      // TODO: this is not safe, we could get something different than a number here.
+    }, parseInt(process.env.BLOCKCHAIN_CONFIRMATION_INTERVAL_TIME_IN_MS));
   }
 }
 
